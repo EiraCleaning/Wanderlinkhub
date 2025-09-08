@@ -1,0 +1,189 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* WanderLink Hub Official Color Palette with Usage Guidelines */
+  --wl-forest: #2E5D50;      /* Primary CTA - Buttons, nav active, verified pins */
+  --wl-sand: #E0A628;        /* Accent (Energy) - Secondary CTAs, highlights, badges */
+  --wl-coral: #E06C65;       /* Accent (Warmth) - Success/positive states, friendly accents */
+  --wl-sky: #5BA4CF;         /* Secondary - Info states, hover/focus, map highlights */
+  --wl-beige: #F8F4EC;       /* Neutral Base - Background */
+  --wl-ink: #1B1B1B;         /* Neutral Dark - Headings, strong text */
+  --wl-slate: #55606A;       /* Neutral Mid - Body text, icons */
+  --wl-border: #E6E3DD;      /* Border/Line - Dividers, card borders */
+  --wl-white: #FFFFFF;       /* Neutral Light - Card backgrounds, text on dark */
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* You can override colors for dark mode if needed */
+  }
+}
+
+/* Utility classes for easy access */
+.bg-wl-forest { background-color: var(--wl-forest); }
+.bg-wl-sand { background-color: var(--wl-sand); }
+.bg-wl-coral { background-color: var(--wl-coral); }
+.bg-wl-sky { background-color: var(--wl-sky); }
+.bg-wl-beige { background-color: var(--wl-beige); }
+.bg-wl-ink { background-color: var(--wl-ink); }
+.bg-wl-white { background-color: var(--wl-white); }
+
+.text-wl-forest { color: var(--wl-forest); }
+.text-wl-sand { color: var(--wl-sand); }
+.text-wl-coral { color: var(--wl-coral); }
+.text-wl-sky { color: var(--wl-sky); }
+.text-wl-beige { color: var(--wl-beige); }
+.text-wl-ink { color: var(--wl-ink); }
+.text-wl-slate { color: var(--wl-slate); }
+.text-wl-white { color: var(--wl-white); }
+
+.border-wl-forest { border-color: var(--wl-forest); }
+.border-wl-sand { border-color: var(--wl-sand); }
+.border-wl-coral { border-color: var(--wl-coral); }
+.border-wl-sky { border-color: var(--wl-sky); }
+.border-wl-border { border-color: var(--wl-border); }
+
+/* Shadow utilities */
+.shadow-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Focus states */
+.focus\:ring-wl-forest:focus {
+  --tw-ring-color: var(--wl-forest);
+}
+
+.focus\:ring-wl-sky:focus {
+  --tw-ring-color: var(--wl-sky);
+}
+
+/* Hover states */
+.hover\:bg-wl-sky:hover {
+  background-color: var(--wl-sky);
+}
+
+.hover\:bg-wl-forest:hover {
+  background-color: var(--wl-forest);
+}
+
+.hover\:text-wl-sky:hover {
+  color: var(--wl-sky);
+}
+
+/* Brand Font Utility Classes */
+.font-display {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+}
+
+.font-sans {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* Font Weight Utilities for Brand Fonts */
+.font-display-light {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 300;
+}
+
+.font-display-normal {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 400;
+}
+
+.font-display-medium {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 500;
+}
+
+.font-display-semibold {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 600;
+}
+
+.font-display-bold {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 700;
+}
+
+/* Specific Brand Typography Classes */
+.brand-heading {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.brand-title {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.brand-body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* Global Font Application */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif !important;
+}
+
+p, span, div, button, input, label, a {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Force font loading and application */
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Ensure brand classes override everything */
+.brand-heading,
+.brand-title,
+.brand-subtitle,
+.brand-body,
+.font-display,
+.font-sans {
+  font-family: inherit !important;
+} 

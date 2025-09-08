@@ -3,25 +3,43 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "seed": "tsx lib/seed.ts",
+    "setup-admin": "tsx scripts/setup-admin.ts",
+    "setup-admin-direct": "tsx scripts/setup-admin-direct.ts"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.56.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.1",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.541.0",
+    "mapbox-gl": "^3.14.0",
+    "next": "15.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.0"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
-    "@eslint/eslintrc": "^3"
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.4",
+    "typescript": "^5"
   }
 }

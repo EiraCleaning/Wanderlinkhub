@@ -1,0 +1,18 @@
+{
+  "name": "WanderLink Hub",
+  "short_name": "WanderLink",
+  "description": "Discover family-friendly events and hubs around the world",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E5D50",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+} 
