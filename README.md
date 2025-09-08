@@ -367,3 +367,4 @@ Once you restart the server:
 - You should see the explore page working correctly
 
 **Go ahead and create the `.env.local` file with the content above, then restart your dev server!** 🚀
+# Wanderlinkhub
