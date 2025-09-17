@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -7,7 +7,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
@@ -15,9 +15,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
+// Client-side createClient function
+export const createClient = () => {
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  });
+};
+
 // Server-side client with anon key (for auth)
 export const createServerClient = () => {
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
@@ -31,5 +42,5 @@ export const createAdminClient = () => {
   if (!serviceRoleKey) {
     throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY');
   }
-  return createClient(supabaseUrl, serviceRoleKey);
-}; 
+  return createSupabaseClient(supabaseUrl, serviceRoleKey);
+};

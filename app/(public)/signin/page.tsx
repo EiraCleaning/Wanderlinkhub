@@ -10,6 +10,7 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [message, setMessage] = useState('');
   const router = useRouter();
@@ -54,15 +55,64 @@ export default function SignInPage() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Validate password confirmation
+        if (password !== confirmPassword) {
+          setMessage('Passwords do not match. Please try again.');
+          setIsLoading(false);
+          return;
+        }
+        
+        // Validate password length
+        if (password.length < 6) {
+          setMessage('Password must be at least 6 characters long.');
+          setIsLoading(false);
+          return;
+        }
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/profile`
+            emailRedirectTo: `${window.location.origin}/profile`,
+            data: {
+              email_confirm: false  // Force disable email confirmation
+            }
           }
         });
         if (error) throw error;
-        setMessage('Check your email for a confirmation link!');
+        
+        // Always try to sign in after signup
+        console.log('Signup response:', { user: data.user, session: data.session });
+        
+        if (data.user) {
+          if (data.session) {
+            // User is immediately signed in
+            console.log('User created and signed in immediately');
+            router.push('/profile');
+          } else {
+            // User created but no session - try to sign them in
+            console.log('User created, attempting to sign in...');
+            
+            // Wait a moment for the user to be fully created
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email,
+              password
+            });
+            
+            if (signInError) {
+              console.error('Sign in error:', signInError);
+              // Just show a simple message and let them try to sign in manually
+              setMessage('Account created! Please sign in below.');
+            } else {
+              console.log('Successfully signed in after signup');
+              router.push('/profile');
+            }
+          }
+        } else {
+          // Unexpected case
+          setMessage('Account created! Please sign in below.');
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -87,15 +137,20 @@ export default function SignInPage() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-2xl sm:text-3xl font-semibold text-wl-ink text-center">Welcome</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-wl-ink text-center">
+          {isSignUp ? 'Create Account' : 'Welcome'}
+        </h1>
         <p className="text-center text-wl-slate mt-2">
-          Sign in to submit listings, write reviews, and save your favourites.
+          {isSignUp 
+            ? 'Sign up to submit listings, write reviews, and save your favourites.'
+            : 'Sign in to submit listings, write reviews, and save your favourites.'
+          }
         </p>
 
         {/* Google */}
         <div className="mt-6">
           <GoogleButton onClick={handleGoogleSignIn}>
-            {isLoading ? 'Signing in...' : 'Continue with Google'}
+            {isLoading ? (isSignUp ? 'Creating account...' : 'Signing in...') : 'Continue with Google'}
           </GoogleButton>
         </div>
 
@@ -138,6 +193,23 @@ export default function SignInPage() {
             />
           </div>
 
+          {isSignUp && (
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-wl-ink mb-1">
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
+
           {message && (
             <div className={`text-sm p-3 rounded-lg ${
               message.includes('Error') || message.includes('error') 
@@ -161,10 +233,14 @@ export default function SignInPage() {
         <div className="text-center mt-4">
           <button
             type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setMessage(''); // Clear any messages
+              setConfirmPassword(''); // Clear confirm password when switching
+            }}
             className="text-sm text-wl-slate hover:text-wl-ink underline"
           >
-            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            {isSignUp ? 'Already have an account? Click here to sign in' : "Don't have an account? Click here to sign up"}
           </button>
         </div>
 

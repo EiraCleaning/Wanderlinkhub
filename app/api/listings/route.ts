@@ -3,9 +3,15 @@ import { CreateListingSchema, ListingsQuerySchema } from '@/lib/validation';
 import { getListings, createListing } from '@/lib/db';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { cookies } from 'next/headers';
+import { unstable_noStore as noStore } from 'next/cache';
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
+    noStore(); // Disable caching for this request
+    
     const { searchParams } = new URL(request.url);
     
     // Parse and validate query parameters
@@ -26,7 +32,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       listings,
-      count: listings.length
+      count: listings.length,
+      timestamp: new Date().toISOString()
+    }, {
+      headers: {
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0"
+      }
     });
   } catch (error) {
     console.error('Error fetching listings:', error);

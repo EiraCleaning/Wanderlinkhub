@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import FavouriteButton from "@/components/FavouriteButton";
 
 export function ListingCard({
   id, type, title, city, country, startDate, endDate, price, status, imageUrl, href,
@@ -32,6 +33,11 @@ export function ListingCard({
         {status === "verified" && (
           <span className="absolute top-2 left-2 rounded-full bg-[var(--wl-forest)] text-white text-xs px-2 py-1">✓ Verified</span>
         )}
+        
+        {/* Favourite button */}
+        <div className="absolute top-2 right-2 z-10">
+          <FavouriteButton listingId={id} size="md" />
+        </div>
       </div>
 
       {/* Content column */}

@@ -5,6 +5,7 @@ import { X, ExternalLink, Star } from 'lucide-react';
 import type { ListingResponse, ReviewResponse } from '@/lib/validation';
 import { formatPrice, getListingTypeIcon } from '@/lib/map';
 import { format } from 'date-fns';
+import FavouriteButton from '@/components/FavouriteButton';
 
 interface DetailSheetProps {
   listing: ListingResponse | null;
@@ -95,13 +96,13 @@ export default function DetailSheet({ listing, isOpen, onClose }: DetailSheetPro
             <div className="flex items-center space-x-3">
               <span className="text-3xl">{getListingTypeIcon(listing.ltype)}</span>
               <div>
-                                                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-             listing.ltype === 'event' 
-               ? 'bg-[var(--wl-sky)] text-[var(--wl-white)]' 
-               : 'bg-[var(--wl-sand)] text-[var(--wl-white)]'
-           }`}>
-             {listing.ltype}
-           </span>
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                  listing.ltype === 'event' 
+                    ? 'bg-[var(--wl-sky)] text-[var(--wl-white)]' 
+                    : 'bg-[var(--wl-sand)] text-[var(--wl-white)]'
+                }`}>
+                  {listing.ltype}
+                </span>
                 {listing.verify === 'pending' && (
                   <span className="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                     Pending
@@ -109,12 +110,22 @@ export default function DetailSheet({ listing, isOpen, onClose }: DetailSheetPro
                 )}
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            
+            <div className="flex items-center space-x-2">
+              {/* Favourite Button */}
+              <FavouriteButton 
+                listingId={listing.id} 
+                className="z-10"
+                size="lg"
+              />
+              
+              <button
+                onClick={onClose}
+                className="p-2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Title */}

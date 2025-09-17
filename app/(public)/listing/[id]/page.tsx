@@ -11,6 +11,7 @@ import ReviewList from '@/components/ReviewList';
 import { formatPrice, getListingTypeIcon } from '@/lib/map';
 import type { ListingResponse, ReviewResponse } from '@/lib/validation';
 import { supabase } from '@/lib/supabaseClient';
+import FavouriteButton from '@/components/FavouriteButton';
 
 export default function ListingDetailPage() {
   const params = useParams();
@@ -175,21 +176,30 @@ export default function ListingDetailPage() {
             <span>Back</span>
           </Link>
           
-                  <div className="flex items-center space-x-2">
-          <span className="text-2xl">{getListingTypeIcon(listing.ltype)}</span>
-          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-            listing.ltype === 'event' 
-              ? 'bg-[var(--wl-sky)] text-[var(--wl-white)]' 
-              : 'bg-[var(--wl-sand)] text-[var(--wl-white)]'
-          }`}>
-            {listing.ltype}
-          </span>
-          {listing.verify === 'pending' && (
-            <span className="px-2 py-1 text-xs font-medium rounded-full bg-[var(--wl-sand)] text-[var(--wl-white)]">
-              Pending
-            </span>
-          )}
-        </div>
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">{getListingTypeIcon(listing.ltype)}</span>
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                listing.ltype === 'event' 
+                  ? 'bg-[var(--wl-sky)] text-[var(--wl-white)]' 
+                  : 'bg-[var(--wl-sand)] text-[var(--wl-white)]'
+              }`}>
+                {listing.ltype}
+              </span>
+              {listing.verify === 'pending' && (
+                <span className="px-2 py-1 text-xs font-medium rounded-full bg-[var(--wl-sand)] text-[var(--wl-white)]">
+                  Pending
+                </span>
+              )}
+            </div>
+            
+            {/* Favourite Button */}
+            <FavouriteButton 
+              listingId={listingId} 
+              className="z-10"
+              size="lg"
+            />
+          </div>
         </div>
 
         <h1 className="text-2xl font-bold text-gray-900 mb-2 brand-heading">
