@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Map, Calendar, Plus, User } from 'lucide-react';
+import { Map, Calendar, Plus, User, LogOut } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
   {
@@ -33,6 +36,83 @@ const navItems = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for existing session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setIsLoading(false);
+    };
+
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null);
+        setIsLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  // Create nav items based on auth status
+  const getNavItems = () => {
+    if (isLoading) {
+      return [
+        ...navItems.slice(0, 3), // Explore, Calendar, Submit
+        {
+          href: '#',
+          label: 'Loading...',
+          icon: User,
+          ariaLabel: 'Loading user menu'
+        }
+      ];
+    }
+
+    if (user) {
+      return [
+        ...navItems.slice(0, 3), // Explore, Calendar, Submit
+        {
+          href: '/profile',
+          label: 'Profile',
+          icon: User,
+          ariaLabel: 'User profile and settings'
+        },
+        {
+          href: '#',
+          label: 'Logout',
+          icon: LogOut,
+          ariaLabel: 'Sign out',
+          onClick: handleLogout
+        }
+      ];
+    }
+
+    return [
+      ...navItems.slice(0, 3), // Explore, Calendar, Submit
+      {
+        href: '/signin',
+        label: 'Sign In',
+        icon: User,
+        ariaLabel: 'Sign in to your account'
+      }
+    ];
+  };
 
   return (
     <nav 
@@ -44,9 +124,34 @@ export default function BottomNav() {
       aria-label="Main navigation"
     >
       <div className="flex items-center justify-around h-16 px-4">
-        {navItems.map((item) => {
+        {getNavItems().map((item, index) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
+          
+          // Handle logout button differently
+          if (item.onClick) {
+            return (
+              <button
+                key={`${item.label}-${index}`}
+                onClick={item.onClick}
+                className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors ${
+                  'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
+                }`}
+                aria-label={item.ariaLabel}
+              >
+                <Icon 
+                  size={24} 
+                  className={`mb-1 ${
+                    'text-[var(--wl-slate)]'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span className="text-xs font-medium truncate">
+                  {item.label}
+                </span>
+              </button>
+            );
+          }
           
           return (
             <Link
