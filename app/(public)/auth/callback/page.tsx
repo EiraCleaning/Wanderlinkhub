@@ -15,6 +15,15 @@ function AuthCallbackContent() {
         const code = searchParams.get('code');
         const error = searchParams.get('error');
         const errorDescription = searchParams.get('error_description');
+        
+        // Debug logging
+        console.log('OAuth callback received:', {
+          code: code ? 'present' : 'missing',
+          error,
+          errorDescription,
+          fullUrl: window.location.href,
+          searchParams: Object.fromEntries(searchParams.entries())
+        });
 
         if (error) {
           console.error('OAuth error:', error, errorDescription);
@@ -28,10 +37,11 @@ function AuthCallbackContent() {
 
         if (!code) {
           console.error('No authorization code received');
-          setStatus('No authorization code received');
+          console.log('Available search params:', Object.fromEntries(searchParams.entries()));
+          setStatus('No authorization code received - check Google OAuth settings');
           setTimeout(() => {
             router.push('/signin?error=no_code');
-          }, 2000);
+          }, 3000);
           return;
         }
 
