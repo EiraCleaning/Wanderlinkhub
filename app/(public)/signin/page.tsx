@@ -173,7 +173,7 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent"
+              className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent text-wl-ink placeholder-gray-400"
               placeholder="your@email.com"
             />
           </div>
@@ -188,7 +188,7 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent"
+              className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent text-wl-ink placeholder-gray-400"
               placeholder="••••••••"
             />
           </div>
@@ -204,7 +204,7 @@ export default function SignInPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent"
+                className="w-full px-3 py-2 border border-wl-border rounded-lg focus:outline-none focus:ring-2 focus:ring-wl-sky focus:border-transparent text-wl-ink placeholder-gray-400"
                 placeholder="••••••••"
               />
             </div>
