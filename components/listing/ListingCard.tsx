@@ -30,9 +30,6 @@ export function ListingCard({
           <div className="absolute inset-0 grid place-items-center text-[var(--wl-slate)]/70 text-sm">No photo</div>
         )}
         
-        {status === "verified" && (
-          <span className="absolute top-2 left-2 rounded-full bg-[var(--wl-forest)] text-white text-xs px-2 py-1">✓ Verified</span>
-        )}
         
         {/* Favourite button */}
         <div className="absolute top-2 right-2 z-10">
@@ -46,9 +43,6 @@ export function ListingCard({
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center rounded-full bg-[var(--wl-sky)]/15 text-[var(--wl-ink)] px-2 py-0.5 text-xs">{type}</span>
-          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${
-            status === "verified" ? "bg-[var(--wl-forest)] text-white" : "bg-[var(--wl-sand)] text-[var(--wl-ink)]"
-          }`}>{status}</span>
         </div>
 
         <ul className="mt-1 space-y-1 text-[var(--wl-slate)] text-sm">

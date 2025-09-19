@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabaseClient';
 import { unstable_noStore as noStore } from 'next/cache';
 
 export const dynamic = "force-dynamic";
@@ -21,27 +21,29 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Create a Supabase client with the user's token
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      }
-    );
-    
-    // Verify the token and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Create admin client and verify the token
+    const supabase = createAdminClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
       console.error('Auth error:', authError);
       return NextResponse.json(
         { success: false, message: 'Invalid authentication token' },
         { status: 401 }
+      );
+    }
+
+    // Check if user is a supporter
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_supporter')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile?.is_supporter) {
+      return NextResponse.json(
+        { success: false, message: 'Favourites are only available to Founding Supporters' },
+        { status: 403 }
       );
     }
 
@@ -111,27 +113,29 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Create a Supabase client with the user's token
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      }
-    );
-    
-    // Verify the token and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Create admin client and verify the token
+    const supabase = createAdminClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
       console.error('Auth error:', authError);
       return NextResponse.json(
         { success: false, message: 'Invalid authentication token' },
         { status: 401 }
+      );
+    }
+
+    // Check if user is a supporter
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_supporter')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile?.is_supporter) {
+      return NextResponse.json(
+        { success: false, message: 'Favourites are only available to Founding Supporters' },
+        { status: 403 }
       );
     }
 
@@ -217,27 +221,29 @@ export async function DELETE(request: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Create a Supabase client with the user's token
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      }
-    );
-    
-    // Verify the token and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Create admin client and verify the token
+    const supabase = createAdminClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
       console.error('Auth error:', authError);
       return NextResponse.json(
         { success: false, message: 'Invalid authentication token' },
         { status: 401 }
+      );
+    }
+
+    // Check if user is a supporter
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_supporter')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile?.is_supporter) {
+      return NextResponse.json(
+        { success: false, message: 'Favourites are only available to Founding Supporters' },
+        { status: 403 }
       );
     }
 

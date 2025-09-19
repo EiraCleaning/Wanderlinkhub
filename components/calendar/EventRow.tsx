@@ -24,9 +24,7 @@ export function EventRow({
   return (
     <div className="p-4 sm:p-5 grid gap-3 sm:gap-4 sm:grid-cols-[112px,1fr,auto]">
       {/* Thumbnail */}
-      <div className={`relative rounded-xl overflow-hidden bg-[var(--wl-beige)] sm:h-24 sm:w-28 sm:aspect-auto aspect-[16/10] ${
-        status === 'pending' ? 'ring-1 ring-[var(--wl-sand)]/60' : ''
-      }`}>
+      <div className="relative rounded-xl overflow-hidden bg-[var(--wl-beige)] sm:h-24 sm:w-28 sm:aspect-auto aspect-[16/10]">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -38,9 +36,6 @@ export function EventRow({
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center text-[var(--wl-slate)]/70 text-xs">No photo</div>
-        )}
-        {status === 'verified' && (
-          <span className="absolute top-1.5 left-1.5 rounded-full bg-[var(--wl-forest)] text-white text-[10px] px-1.5 py-0.5">✓</span>
         )}
       </div>
 
@@ -54,11 +49,6 @@ export function EventRow({
             type === 'event' ? 'bg-[var(--wl-sky)]/15' : 'bg-[var(--wl-sand)]/15'
           } text-[var(--wl-ink)]`}>
             {type}
-          </span>
-          <span className={`rounded-full px-2 py-0.5 text-xs ${
-            status === 'verified' ? 'bg-[var(--wl-forest)] text-white' : 'bg-[var(--wl-sand)] text-[var(--wl-ink)]'
-          }`}>
-            {status}
           </span>
         </div>
         <ul className="mt-1 space-y-1 text-[var(--wl-slate)] text-sm">

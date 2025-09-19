@@ -61,13 +61,20 @@ export default function DesktopNav() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log('🔄 Logout button clicked (Desktop)');
     try {
       // Sign out from Supabase
       console.log('🔄 Signing out from Supabase...');
-      await supabase.auth.signOut();
-      console.log('✅ Signed out successfully, redirecting...');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('❌ Supabase signout error:', error);
+      } else {
+        console.log('✅ Signed out successfully, redirecting...');
+      }
+      // Always redirect, even if there was an error
       router.push('/');
     } catch (error) {
       console.error('❌ Error signing out:', error);
@@ -140,11 +147,7 @@ export default function DesktopNav() {
                   <span className="hidden lg:block">Profile</span>
                 </Link>
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log('🔄 Desktop logout button clicked');
-                    handleLogout();
-                  }}
+                  onClick={(e) => handleLogout(e)}
                   className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
                 >
                   <LogOut size={20} />

@@ -61,13 +61,20 @@ export default function BottomNav() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
-    console.log('🔄 Logout button clicked');
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🔄 Logout button clicked (Bottom)');
     try {
       // Sign out from Supabase
       console.log('🔄 Signing out from Supabase...');
-      await supabase.auth.signOut();
-      console.log('✅ Signed out successfully, redirecting...');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('❌ Supabase signout error:', error);
+      } else {
+        console.log('✅ Signed out successfully, redirecting...');
+      }
+      // Always redirect, even if there was an error
       router.push('/');
     } catch (error) {
       console.error('❌ Error signing out:', error);
@@ -103,7 +110,7 @@ export default function BottomNav() {
           label: 'Logout',
           icon: LogOut,
           ariaLabel: 'Sign out',
-          onClick: handleLogout
+          onClick: (e: React.MouseEvent) => handleLogout(e)
         }
       ];
     }
@@ -134,15 +141,11 @@ export default function BottomNav() {
           const isActive = pathname === item.href;
           
           // Handle logout button differently
-          if (item.onClick) {
+          if ('onClick' in item && item.onClick) {
             return (
               <button
                 key={`${item.label}-${index}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log('🔄 Bottom logout button clicked');
-                  item.onClick();
-                }}
+                onClick={item.onClick}
                 className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors ${
                   'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
                 }`}

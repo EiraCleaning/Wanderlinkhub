@@ -34,16 +34,53 @@ export default function FavouritesList({ user }: FavouritesListProps) {
   const [favourites, setFavourites] = useState<Favourite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSupporter, setIsSupporter] = useState(false);
 
   useEffect(() => {
     if (user) {
       setIsAuthenticated(true);
-      fetchFavourites();
+      checkSupporterStatus();
     } else {
       setIsAuthenticated(false);
+      setIsSupporter(false);
       setFavourites([]);
     }
   }, [user]);
+
+  const checkSupporterStatus = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.log('FavouritesList: No access token available');
+        return;
+      }
+
+      const response = await fetch('/api/check-supporter', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsSupporter(data.isSupporter);
+        
+        // Only fetch favourites if user is a supporter
+        if (data.isSupporter) {
+          fetchFavourites();
+        }
+      } else {
+        console.error('FavouritesList: Failed to check supporter status');
+        setIsSupporter(false);
+      }
+    } catch (error) {
+      console.error('FavouritesList: Error checking supporter status:', error);
+      setIsSupporter(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   const fetchFavourites = async () => {
@@ -101,6 +138,26 @@ export default function FavouritesList({ user }: FavouritesListProps) {
           className="inline-flex items-center px-4 py-2 bg-[var(--wl-forest)] text-white rounded-lg hover:bg-[var(--wl-forest)]/90 transition-colors"
         >
           Sign In
+        </a>
+      </div>
+    );
+  }
+
+  if (!isSupporter) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-gray-100 rounded-full">
+          <Heart className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No favourites yet</h3>
+        <p className="text-gray-600 mb-4">
+          Start exploring events and hubs to add them to your favourites
+        </p>
+        <a
+          href="/explore"
+          className="inline-flex items-center px-4 py-2 bg-[var(--wl-forest)] text-white rounded-lg hover:bg-[var(--wl-forest)]/90 transition-colors"
+        >
+          Explore Events
         </a>
       </div>
     );

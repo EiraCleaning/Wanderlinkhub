@@ -5,6 +5,7 @@ import AppShell from '@/components/AppShell';
 import HeroExplore from '@/components/HeroExplore';
 import StickyFilters from '@/components/StickyFilters';
 import MapView from '@/components/MapView';
+import MapPinPopup from '@/components/MapPinPopup';
 import { useStickyOnScroll } from '@/components/hooks/useStickyOnScroll';
 import { ListingCard, ListingCardSkeleton } from '@/components/listing';
 import type { ListingResponse } from '@/lib/validation';
@@ -23,12 +24,14 @@ export default function ExplorePage() {
   const { stuck, sentinelRef } = useStickyOnScroll();
   const [listings, setListings] = useState<ListingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedListing, setSelectedListing] = useState<ListingResponse | null>(null);
+  const [shouldScrollToMap, setShouldScrollToMap] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     location: '',
     type: 'all',
     fromDate: '',
     toDate: '',
-    verifiedOnly: true,
+    verifiedOnly: false,
     coordinates: undefined
   });
 
@@ -40,18 +43,29 @@ export default function ExplorePage() {
     fetchListings();
   }, [filters]); // Refetch when filters change
 
+  // Handle scroll to map after data loads
+  useEffect(() => {
+    if (shouldScrollToMap && !isLoading && typeof window !== 'undefined' && window.innerWidth < 768) {
+      setTimeout(() => {
+        const mapSection = document.querySelector('section:first-of-type');
+        if (mapSection) {
+          mapSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+        setShouldScrollToMap(false); // Reset the flag
+      }, 300); // Small delay to ensure map is rendered
+    }
+  }, [isLoading, shouldScrollToMap]);
+
   const fetchListings = async () => {
     try {
       
       // Build query parameters
       const params = new URLSearchParams();
       
-      // Handle verified filter
-      if (filters.verifiedOnly) {
-        params.append('verified', 'true');
-      } else {
-        // Don't add verified parameter to show all listings
-      }
+      // No verified filter - show all listings
       
       if (filters.type !== 'all') {
         params.append('ltype', filters.type);
@@ -93,13 +107,24 @@ export default function ExplorePage() {
 
   const handleFiltersApply = (newFilters: FilterState) => {
     setFilters(newFilters);
-    // Refetch listings with new filters
-    fetchListings();
+    // Set flag to scroll to map after data loads
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setShouldScrollToMap(true);
+    }
   };
 
   const handlePinClick = (listing: ListingResponse) => {
+    // Show popup with listing details
+    setSelectedListing(listing);
+  };
+
+  const handleViewDetails = (listing: ListingResponse) => {
     // Navigate to listing detail page
     window.location.href = `/listing/${listing.id}`;
+  };
+
+  const handleClosePopup = () => {
+    setSelectedListing(null);
   };
 
   // Helper function to map ListingResponse to ListingCard props
@@ -186,6 +211,15 @@ export default function ExplorePage() {
           </div>
         </div>
       </section>
+
+      {/* Map Pin Popup */}
+      {selectedListing && (
+        <MapPinPopup
+          listing={selectedListing}
+          onClose={handleClosePopup}
+          onViewDetails={handleViewDetails}
+        />
+      )}
     </AppShell>
   );
 } 

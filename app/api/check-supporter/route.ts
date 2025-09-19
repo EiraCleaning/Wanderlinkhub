@@ -5,7 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// GET /api/favourites/check?listing_id=xxx - Check if a listing is favourited
+// GET /api/check-supporter - Check if user is a supporter
 export async function GET(request: NextRequest) {
   try {
     noStore();
@@ -34,48 +34,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is a supporter
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('is_supporter')
       .eq('id', user.id)
       .single();
 
-    if (profileError || !profile?.is_supporter) {
+    if (error) {
+      console.error('Error checking supporter status:', error);
       return NextResponse.json(
-        { success: false, message: 'Favourites are only available to Founding Supporters' },
-        { status: 403 }
-      );
-    }
-
-    const { searchParams } = new URL(request.url);
-    const listing_id = searchParams.get('listing_id');
-
-    if (!listing_id) {
-      return NextResponse.json(
-        { success: false, message: 'Listing ID is required' },
-        { status: 400 }
-      );
-    }
-
-    // Check if favourited
-    const { data: favourite, error } = await supabase
-      .from('favourites')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('listing_id', listing_id)
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error checking favourite:', error);
-      return NextResponse.json(
-        { success: false, message: 'Failed to check favourite status' },
+        { success: false, message: 'Failed to check supporter status' },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      isFavourited: !!favourite
+      isSupporter: profile?.is_supporter || false
     }, {
       headers: {
         "cache-control": "no-store, no-cache, must-revalidate, max-age=0"
@@ -83,7 +58,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in favourites check:', error);
+    console.error('Error in check-supporter:', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

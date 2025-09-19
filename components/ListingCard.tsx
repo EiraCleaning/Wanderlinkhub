@@ -99,17 +99,6 @@ export default function ListingCard({ listing, showStatus = false }: ListingCard
                   {listing.ltype}
                 </span>
                 
-                {showStatus && (
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    listing.verify === 'verified' 
-                      ? 'bg-[var(--wl-forest)] text-[var(--wl-white)]'
-                      : listing.verify === 'pending'
-                      ? 'bg-[var(--wl-sand)] text-[var(--wl-white)]'
-                      : 'bg-[var(--wl-slate)] text-[var(--wl-white)]'
-                  }`}>
-                    {listing.verify}
-                  </span>
-                )}
               </div>
             </div>
           </div>

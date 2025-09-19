@@ -69,7 +69,7 @@ export default function Geocoder({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=place,locality,neighborhood&limit=5`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=8`
       );
       
       if (response.ok) {
@@ -99,15 +99,25 @@ export default function Geocoder({
   };
 
   const handleResultSelect = (result: GeocodingResult) => {
+    // Safety check for context array
+    if (!result.context || !Array.isArray(result.context)) {
+      console.warn('Invalid result context:', result);
+      return;
+    }
+    
     // Parse location components
     const city = result.context.find(ctx => ctx.id.startsWith('place'))?.text || '';
     const region = result.context.find(ctx => ctx.id.startsWith('region'))?.text || '';
     const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
     
+    // Check if this is a country-level result
+    const isCountry = result.place_name.includes('country') || 
+                     (result.context.length === 1 && result.context[0].id.startsWith('country'));
+    
     const location = {
-      city: city || result.place_name.split(',')[0],
-      region: region || '',
-      country: country || '',
+      city: isCountry ? '' : (city || result.place_name.split(',')[0]),
+      region: isCountry ? '' : (region || ''),
+      country: country || (isCountry ? result.place_name : ''),
       lat: result.center[1],
       lng: result.center[0]
     };
@@ -157,7 +167,7 @@ export default function Geocoder({
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder="Search for a city, town, or location..."
+          placeholder="Search for a country, city, or location..."
           className="w-full pl-10 pr-10 py-2 border border-[var(--wl-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:border-[var(--wl-sky)]"
         />
         
@@ -181,22 +191,38 @@ export default function Geocoder({
             </div>
           ) : (
             <div className="py-1">
-              {results.map((result, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleResultSelect(result)}
-                  className="w-full px-4 py-3 text-left hover:bg-[var(--wl-beige)] focus:bg-[var(--wl-beige)] focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-inset"
-                >
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 text-[var(--wl-slate)] mr-2 flex-shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-[var(--wl-ink)] truncate">
-                        {result.place_name}
+              {results.map((result, index) => {
+                // Safety check for context array
+                if (!result.context || !Array.isArray(result.context)) {
+                  return null;
+                }
+                
+                const isCountry = result.place_name.includes('country') || 
+                                 (result.context.length === 1 && result.context[0].id.startsWith('country'));
+                const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
+                
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleResultSelect(result)}
+                    className="w-full px-4 py-3 text-left hover:bg-[var(--wl-beige)] focus:bg-[var(--wl-beige)] focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-inset"
+                  >
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 text-[var(--wl-slate)] mr-2 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-[var(--wl-ink)] truncate">
+                          {result.place_name}
+                        </div>
+                        {isCountry && (
+                          <div className="text-xs text-[var(--wl-slate)] mt-1">
+                            🌍 Country
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -210,12 +236,15 @@ export default function Geocoder({
               <MapPin className="h-4 w-4 text-[var(--wl-forest)] mr-2" />
               <div>
                 <div className="text-sm font-medium text-[var(--wl-ink)]">
-                  {selectedLocation.city}
-                  {selectedLocation.region && `, ${selectedLocation.region}`}
-                  {selectedLocation.country && `, ${selectedLocation.country}`}
+                  {selectedLocation.city && selectedLocation.region && selectedLocation.country
+                    ? `${selectedLocation.city}, ${selectedLocation.region}, ${selectedLocation.country}`
+                    : selectedLocation.country
+                    ? `🌍 ${selectedLocation.country}`
+                    : `${selectedLocation.city}${selectedLocation.region ? `, ${selectedLocation.region}` : ''}${selectedLocation.country ? `, ${selectedLocation.country}` : ''}`
+                  }
                 </div>
                 <div className="text-xs text-[var(--wl-slate)]">
-                  Coordinates: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
+                  {selectedLocation.city ? 'City/Region' : 'Country'} • Coordinates: {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
                 </div>
               </div>
             </div>

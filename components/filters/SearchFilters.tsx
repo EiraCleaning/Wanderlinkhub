@@ -25,7 +25,6 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
   const [type, setType] = useState<ListingType | 'all'>('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [verifiedOnly, setVerifiedOnly] = useState(true);
   // Location state for Geocoder
   const [selectedLocation, setSelectedLocation] = useState<{
     city: string;
@@ -60,7 +59,7 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
       type,
       fromDate,
       toDate,
-      verifiedOnly,
+      verifiedOnly: false, // Always false since we removed verification
       coordinates: selectedLocation ? {
         lat: selectedLocation.lat,
         lng: selectedLocation.lng
@@ -75,13 +74,12 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
     setType('all');
     setFromDate('');
     setToDate('');
-    setVerifiedOnly(true);
     onApply?.({
       location: '',
       type: 'all',
       fromDate: '',
       toDate: '',
-      verifiedOnly: true
+      verifiedOnly: false
     });
   };
 
@@ -170,57 +168,6 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
           </div>
         </div>
 
-        {/* Verified Toggle */}
-        <div className={isSticky ? 'md:col-span-1' : ''}>
-          {isHero ? (
-            <>
-              <label className="block font-medium text-[var(--wl-ink)] mb-2">
-                Verified only
-              </label>
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  onClick={() => setVerifiedOnly(!verifiedOnly)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-offset-2 ${
-                    verifiedOnly ? 'bg-[var(--wl-forest)]' : 'bg-[var(--wl-slate)]'
-                  }`}
-                  role="switch"
-                  aria-checked={verifiedOnly}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      verifiedOnly ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-                <span className="ml-2 text-sm text-[var(--wl-slate)]">
-                  {verifiedOnly ? 'On' : 'Off'}
-                </span>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center space-x-2">
-              <label className="text-sm text-[var(--wl-ink)] font-medium">
-                Verified
-              </label>
-              <button
-                type="button"
-                onClick={() => setVerifiedOnly(!verifiedOnly)}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-offset-1 ${
-                  verifiedOnly ? 'bg-[var(--wl-forest)]' : 'bg-[var(--wl-slate)]'
-                }`}
-                role="switch"
-                aria-checked={verifiedOnly}
-              >
-                <span
-                  className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                    verifiedOnly ? 'translate-x-5' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Actions Row */}
