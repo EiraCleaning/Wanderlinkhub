@@ -62,12 +62,15 @@ export default function BottomNav() {
   }, []);
 
   const handleLogout = async () => {
+    console.log('🔄 Logout button clicked');
     try {
       // Sign out from Supabase
+      console.log('🔄 Signing out from Supabase...');
       await supabase.auth.signOut();
+      console.log('✅ Signed out successfully, redirecting...');
       router.push('/');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('❌ Error signing out:', error);
       router.push('/');
     }
   };
