@@ -153,16 +153,13 @@ export default function SignInPage() {
 
         {/* Google */}
         <div className="mt-6 space-y-3">
-          <GoogleButton onClick={() => handleGoogleSignIn(false)}>
+          <GoogleButton onClick={() => handleGoogleSignIn(true)}>
             {isLoading ? (isSignUp ? 'Creating account...' : 'Signing in...') : 'Continue with Google'}
           </GoogleButton>
           
-          <button
-            onClick={() => handleGoogleSignIn(true)}
-            className="w-full text-sm text-wl-slate hover:text-wl-ink underline"
-          >
-            Use different Google account
-          </button>
+          <p className="text-xs text-wl-slate text-center">
+            You can choose which Google account to use
+          </p>
         </div>
 
         {/* Divider */}
