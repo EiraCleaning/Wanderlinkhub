@@ -11,24 +11,72 @@ function AuthCallbackContent() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the code from the URL parameters
-        const code = searchParams.get('code');
-        const error = searchParams.get('error');
-        const errorDescription = searchParams.get('error_description');
+        // Check for fragment-based OAuth response (Google OAuth)
+        const hash = window.location.hash;
+        const search = window.location.search;
         
         // Debug logging
         console.log('OAuth callback received:', {
-          code: code ? 'present' : 'missing',
-          error,
-          errorDescription,
+          hash: hash ? 'present' : 'missing',
+          search: search ? 'present' : 'missing',
           fullUrl: window.location.href,
           searchParams: Object.fromEntries(searchParams.entries())
         });
 
+        // Handle fragment-based response (Google OAuth)
+        if (hash) {
+          console.log('Processing fragment-based OAuth response');
+          setStatus('Processing Google OAuth response...');
+          
+          // Parse the fragment
+          const fragmentParams = new URLSearchParams(hash.substring(1));
+          const accessToken = fragmentParams.get('access_token');
+          const refreshToken = fragmentParams.get('refresh_token');
+          const error = fragmentParams.get('error');
+          
+          if (error) {
+            console.error('OAuth error in fragment:', error);
+            setStatus(`Authentication failed: ${error}`);
+            setTimeout(() => {
+              router.push('/signin?error=oauth_denied');
+            }, 2000);
+            return;
+          }
+          
+          if (accessToken) {
+            console.log('Access token received, setting session...');
+            // Set the session directly
+            const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || ''
+            });
+            
+            if (sessionError) {
+              console.error('Session error:', sessionError);
+              setStatus(`Session creation failed: ${sessionError.message}`);
+              setTimeout(() => {
+                router.push('/signin?error=auth_failed');
+              }, 2000);
+              return;
+            }
+            
+            console.log('Session created successfully:', sessionData.user);
+            setStatus('Authentication successful! Redirecting...');
+            setTimeout(() => {
+              router.push('/profile?success=google_signin');
+            }, 1000);
+            return;
+          }
+        }
+
+        // Handle query parameter-based response (standard OAuth)
+        const code = searchParams.get('code');
+        const error = searchParams.get('error');
+        const errorDescription = searchParams.get('error_description');
+
         if (error) {
           console.error('OAuth error:', error, errorDescription);
           setStatus(`Authentication failed: ${errorDescription || error}`);
-          // Redirect to signin page with error
           setTimeout(() => {
             router.push('/signin?error=oauth_denied');
           }, 2000);
@@ -36,9 +84,8 @@ function AuthCallbackContent() {
         }
 
         if (!code) {
-          console.error('No authorization code received');
-          console.log('Available search params:', Object.fromEntries(searchParams.entries()));
-          setStatus('No authorization code received - check Google OAuth settings');
+          console.error('No authorization code or access token received');
+          setStatus('No authorization code received - check OAuth configuration');
           setTimeout(() => {
             router.push('/signin?error=no_code');
           }, 3000);
