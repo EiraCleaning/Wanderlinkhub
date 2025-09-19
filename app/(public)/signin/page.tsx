@@ -18,11 +18,11 @@ export default function SignInPage() {
   // Remove the automatic session check that was causing immediate redirects
   // The server-side sign-out should handle session clearing properly
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (forceAccountSelection = false) => {
     try {
       setIsLoading(true);
       
-      console.log('Starting Google sign-in...');
+      console.log('Starting Google sign-in...', forceAccountSelection ? '(forcing account selection)' : '');
       console.log('Current session before Google sign-in:');
       const { data: { session } } = await supabase.auth.getSession();
       console.log('Session:', session);
@@ -30,7 +30,11 @@ export default function SignInPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          // Force account selection by adding prompt parameter
+          queryParams: forceAccountSelection ? {
+            prompt: 'select_account'
+          } : {}
         }
       });
 
@@ -148,10 +152,17 @@ export default function SignInPage() {
         </p>
 
         {/* Google */}
-        <div className="mt-6">
-          <GoogleButton onClick={handleGoogleSignIn}>
+        <div className="mt-6 space-y-3">
+          <GoogleButton onClick={() => handleGoogleSignIn(false)}>
             {isLoading ? (isSignUp ? 'Creating account...' : 'Signing in...') : 'Continue with Google'}
           </GoogleButton>
+          
+          <button
+            onClick={() => handleGoogleSignIn(true)}
+            className="w-full text-sm text-wl-slate hover:text-wl-ink underline"
+          >
+            Use different Google account
+          </button>
         </div>
 
         {/* Divider */}

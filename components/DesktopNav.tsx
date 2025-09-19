@@ -63,10 +63,21 @@ export default function DesktopNav() {
 
   const handleLogout = async () => {
     try {
+      // Sign out from Supabase
       await supabase.auth.signOut();
-      router.push('/');
+      
+      // Clear any Google OAuth state by redirecting to Google's logout
+      // This ensures the next Google sign-in will ask for account selection
+      window.location.href = 'https://accounts.google.com/logout';
+      
+      // Redirect to home after a short delay
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
     } catch (error) {
       console.error('Error signing out:', error);
+      // Fallback: just redirect to home
+      router.push('/');
     }
   };
 
