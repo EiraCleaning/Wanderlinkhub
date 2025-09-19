@@ -140,7 +140,11 @@ export default function DesktopNav() {
                   <span className="hidden lg:block">Profile</span>
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('🔄 Desktop logout button clicked');
+                    handleLogout();
+                  }}
                   className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
                 >
                   <LogOut size={20} />

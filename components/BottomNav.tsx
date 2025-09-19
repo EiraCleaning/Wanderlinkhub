@@ -138,7 +138,11 @@ export default function BottomNav() {
             return (
               <button
                 key={`${item.label}-${index}`}
-                onClick={item.onClick}
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('🔄 Bottom logout button clicked');
+                  item.onClick();
+                }}
                 className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors ${
                   'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
                 }`}
