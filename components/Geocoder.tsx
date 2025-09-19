@@ -74,7 +74,14 @@ export default function Geocoder({
       
       if (response.ok) {
         const data = await response.json();
-        setResults(data.features || []);
+        // Filter out any invalid results before setting state
+        const validResults = (data.features || []).filter(feature => 
+          feature && 
+          feature.context && 
+          Array.isArray(feature.context) && 
+          feature.place_name
+        );
+        setResults(validResults);
       }
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -191,12 +198,7 @@ export default function Geocoder({
             </div>
           ) : (
             <div className="py-1">
-              {results.map((result, index) => {
-                // Safety check for context array
-                if (!result.context || !Array.isArray(result.context)) {
-                  return null;
-                }
-                
+              {results.filter(result => result && result.context && Array.isArray(result.context)).map((result, index) => {
                 const isCountry = result.place_name.includes('country') || 
                                  (result.context.length === 1 && result.context[0].id.startsWith('country'));
                 const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
