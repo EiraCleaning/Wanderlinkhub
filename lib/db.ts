@@ -55,6 +55,7 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
     }
 
     // Execute the query
+    console.log('getListings: Executing Supabase query...');
     const { data: listings, error } = await supabaseQuery;
 
     if (error) {
@@ -63,6 +64,7 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
     }
 
     console.log('getListings: Retrieved', listings?.length || 0, 'listings from database');
+    console.log('getListings: First few listings:', listings?.slice(0, 3).map(l => ({ title: l.title, lat: l.lat, lng: l.lng })));
 
     // Apply location filtering and ranking in JavaScript
     let filteredData = listings || [];
