@@ -74,11 +74,12 @@ export default function ExplorePage() {
       if (filters.location) {
         params.append('location', filters.location);
         
-        // If we have coordinates, use radius-based filtering
-        // But only for city-level searches, not country-level
-        if (filters.coordinates && filters.location.split(',').length > 1) {
+        // Always send coordinates if available for distance ranking
+        if (filters.coordinates) {
           params.append('near', `${filters.coordinates.lng},${filters.coordinates.lat}`);
-          params.append('radiusKm', '50'); // 50km radius for cities
+          // Use different radius based on search type
+          const isCountrySearch = filters.location.split(',').length === 1;
+          params.append('radiusKm', isCountrySearch ? '2000' : '50'); // 2000km for countries, 50km for cities
         }
       }
       
@@ -129,7 +130,7 @@ export default function ExplorePage() {
   };
 
   // Helper function to map ListingResponse to ListingCard props
-  const mapListingToCardProps = (listing: ListingResponse) => ({
+  const mapListingToCardProps = (listing: ListingResponse & { distance?: number }) => ({
     id: listing.id,
     type: listing.ltype,
     title: listing.title,
@@ -141,6 +142,7 @@ export default function ExplorePage() {
     status: listing.verify === 'rejected' ? 'pending' : listing.verify,
     imageUrl: listing.photos && listing.photos.length > 0 ? listing.photos[0] : undefined,
     href: `/listing/${listing.id}`,
+    distance: listing.distance,
   });
 
   return (

@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/Badge";
 import FavouriteButton from "@/components/FavouriteButton";
 
 export function ListingCard({
-  id, type, title, city, country, startDate, endDate, price, status, imageUrl, href,
+  id, type, title, city, country, startDate, endDate, price, status, imageUrl, href, distance,
 }: {
   id: string; type: "hub" | "event"; title: string; city?: string; country?: string;
   startDate?: string; endDate?: string; price?: string;
-  status: "verified" | "pending"; imageUrl?: string; href: string;
+  status: "verified" | "pending"; imageUrl?: string; href: string; distance?: number;
 }) {
   const dateText = type === "event" && startDate
     ? new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" })
@@ -49,6 +49,9 @@ export function ListingCard({
           {dateText && <li>📅 {dateText}</li>}
           {(city || country) && <li>📍 {city}{country ? `, ${country}` : ""}</li>}
           {price && <li>💰 {price}</li>}
+          {distance !== undefined && distance < Infinity && (
+            <li className="text-[var(--wl-forest)] font-medium">📍 {Math.round(distance)}km away</li>
+          )}
         </ul>
 
         {/* Mobile CTA inline under content */}

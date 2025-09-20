@@ -64,23 +64,32 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
 
     console.log('getListings: Retrieved', listings?.length || 0, 'listings from database');
 
-    // Apply location filtering in JavaScript (since Supabase text search is complex)
+    // Apply location filtering and ranking in JavaScript
     let filteredData = listings || [];
 
     if (query.location) {
       if (query.near && query.radiusKm) {
-        // Use radius-based filtering with coordinates for city-level searches
+        // Use radius-based filtering with coordinates
         const [lng, lat] = query.near;
         const radiusKm = query.radiusKm;
         
-        filteredData = filteredData.filter(listing => {
+        // First filter by text to get country matches, then by radius
+        const locationTerm = query.location.toLowerCase();
+        const textMatches = filteredData.filter(listing => 
+          listing.city?.toLowerCase().includes(locationTerm) ||
+          listing.region?.toLowerCase().includes(locationTerm) ||
+          listing.country?.toLowerCase().includes(locationTerm)
+        );
+        
+        // Then filter by radius from the text matches
+        filteredData = textMatches.filter(listing => {
           if (!listing.lat || !listing.lng) return false;
           const distance = calculateDistance(lat, lng, listing.lat, listing.lng);
           return distance <= radiusKm;
         });
-        console.log('getListings: Filtering by radius:', radiusKm, 'km from', lat, lng);
+        console.log('getListings: Filtering by text + radius:', radiusKm, 'km from', lat, lng);
       } else {
-        // Use text-based filtering for country-level searches
+        // Use text-based filtering for searches without coordinates
         const locationTerm = query.location.toLowerCase();
         filteredData = filteredData.filter(listing => 
           listing.city?.toLowerCase().includes(locationTerm) ||
@@ -89,6 +98,21 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
         );
         console.log('getListings: Filtering by location text:', query.location);
       }
+    }
+
+    // If we have coordinates, add distance ranking for all results
+    if (query.near) {
+      const [lng, lat] = query.near;
+      
+      // Add distance to each listing and sort by distance
+      filteredData = filteredData.map(listing => ({
+        ...listing,
+        distance: listing.lat && listing.lng ? 
+          calculateDistance(lat, lng, listing.lat, listing.lng) : 
+          Infinity
+      })).sort((a, b) => a.distance - b.distance);
+      
+      console.log('getListings: Sorted by distance from', lat, lng);
     }
 
     console.log('getListings: Returning', filteredData.length, 'filtered listings');
