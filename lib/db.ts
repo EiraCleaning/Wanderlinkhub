@@ -68,35 +68,26 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
     let filteredData = listings || [];
 
     if (query.location) {
-      if (query.near && query.radiusKm) {
-        // Use radius-based filtering with coordinates
+      // Always use text-based filtering first
+      const locationTerm = query.location.toLowerCase();
+      filteredData = filteredData.filter(listing => 
+        listing.city?.toLowerCase().includes(locationTerm) ||
+        listing.region?.toLowerCase().includes(locationTerm) ||
+        listing.country?.toLowerCase().includes(locationTerm)
+      );
+      console.log('getListings: Filtering by location text:', query.location);
+      
+      // For city searches, also apply radius filtering
+      if (query.near && query.radiusKm && query.radiusKm < 1000) {
         const [lng, lat] = query.near;
         const radiusKm = query.radiusKm;
         
-        // First filter by text to get country matches, then by radius
-        const locationTerm = query.location.toLowerCase();
-        const textMatches = filteredData.filter(listing => 
-          listing.city?.toLowerCase().includes(locationTerm) ||
-          listing.region?.toLowerCase().includes(locationTerm) ||
-          listing.country?.toLowerCase().includes(locationTerm)
-        );
-        
-        // Then filter by radius from the text matches
-        filteredData = textMatches.filter(listing => {
+        filteredData = filteredData.filter(listing => {
           if (!listing.lat || !listing.lng) return false;
           const distance = calculateDistance(lat, lng, listing.lat, listing.lng);
           return distance <= radiusKm;
         });
-        console.log('getListings: Filtering by text + radius:', radiusKm, 'km from', lat, lng);
-      } else {
-        // Use text-based filtering for searches without coordinates
-        const locationTerm = query.location.toLowerCase();
-        filteredData = filteredData.filter(listing => 
-          listing.city?.toLowerCase().includes(locationTerm) ||
-          listing.region?.toLowerCase().includes(locationTerm) ||
-          listing.country?.toLowerCase().includes(locationTerm)
-        );
-        console.log('getListings: Filtering by location text:', query.location);
+        console.log('getListings: Additional radius filtering:', radiusKm, 'km from', lat, lng);
       }
     }
 

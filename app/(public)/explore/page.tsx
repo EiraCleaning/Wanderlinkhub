@@ -79,7 +79,7 @@ export default function ExplorePage() {
           params.append('near', `${filters.coordinates.lng},${filters.coordinates.lat}`);
           // Use different radius based on search type
           const isCountrySearch = filters.location.split(',').length === 1;
-          params.append('radiusKm', isCountrySearch ? '2000' : '50'); // 2000km for countries, 50km for cities
+          params.append('radiusKm', isCountrySearch ? '999999' : '50'); // No radius limit for countries, 50km for cities
         }
       }
       
