@@ -78,19 +78,23 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
       console.log('getListings: Filtering by location text:', query.location, 'Found', filteredData.length, 'matches');
     }
 
-    // If we have coordinates, add distance ranking for all results
+    // If we have coordinates, add distance ranking and radius filtering
     if (query.near) {
       const [lng, lat] = query.near;
+      const radiusKm = query.radiusKm || 50; // Default to 50km if not specified
       
-      // Add distance to each listing and sort by distance
-      filteredData = filteredData.map(listing => ({
-        ...listing,
-        distance: listing.lat && listing.lng ? 
-          calculateDistance(lat, lng, listing.lat, listing.lng) : 
-          Infinity
-      })).sort((a, b) => a.distance - b.distance);
+      // Add distance to each listing, filter by radius, and sort by distance
+      filteredData = filteredData
+        .map(listing => ({
+          ...listing,
+          distance: listing.lat && listing.lng ? 
+            calculateDistance(lat, lng, listing.lat, listing.lng) : 
+            Infinity
+        }))
+        .filter(listing => listing.distance <= radiusKm) // Filter by radius
+        .sort((a, b) => a.distance - b.distance); // Sort by distance
       
-      console.log('getListings: Sorted by distance from', lat, lng);
+      console.log('getListings: Filtered by radius', radiusKm, 'km and sorted by distance from', lat, lng);
     }
 
     console.log('getListings: Returning', filteredData.length, 'filtered listings');
