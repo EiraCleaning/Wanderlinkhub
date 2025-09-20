@@ -84,18 +84,19 @@ export default function ExplorePage() {
       params.to = filters.toDate;
     }
     
-    // Geo filters - send coordinates for any search that has them
+    // Geo filters - only send coordinates for city searches (multi-part location strings)
+    // For country searches, rely on text filtering only to avoid coordinate processing issues
+    const isCitySearch = filters.location && filters.location.split(',').length > 1;
     const hasValidCoords = filters.coordinates && 
       filters.coordinates.lat != null && 
       filters.coordinates.lng != null &&
       filters.coordinates.lat !== 0 && 
       filters.coordinates.lng !== 0;
     
-    if (hasValidCoords) {
+    // Only use coordinates for city searches to avoid backend coordinate processing issues
+    if (isCitySearch && hasValidCoords) {
       params.near = `${filters.coordinates.lng},${filters.coordinates.lat}`;
-      // Use larger radius for country searches, smaller for city searches
-      const isCitySearch = filters.location && filters.location.split(',').length > 1;
-      params.radiusKm = isCitySearch ? '50' : '2000'; // 50km for cities, 2000km for countries
+      params.radiusKm = '50'; // 50km radius for cities
     }
     
     return params;
