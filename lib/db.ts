@@ -75,19 +75,22 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
         listing.region?.toLowerCase().includes(locationTerm) ||
         listing.country?.toLowerCase().includes(locationTerm)
       );
-      console.log('getListings: Filtering by location text:', query.location);
+      console.log('getListings: Filtering by location text:', query.location, 'Found', filteredData.length, 'matches');
       
-      // For city searches, also apply radius filtering
+      // For city searches only (radius < 1000), also apply radius filtering
       if (query.near && query.radiusKm && query.radiusKm < 1000) {
         const [lng, lat] = query.near;
         const radiusKm = query.radiusKm;
         
+        const beforeCount = filteredData.length;
         filteredData = filteredData.filter(listing => {
           if (!listing.lat || !listing.lng) return false;
           const distance = calculateDistance(lat, lng, listing.lat, listing.lng);
           return distance <= radiusKm;
         });
-        console.log('getListings: Additional radius filtering:', radiusKm, 'km from', lat, lng);
+        console.log('getListings: Additional radius filtering:', radiusKm, 'km from', lat, lng, 'Reduced from', beforeCount, 'to', filteredData.length);
+      } else if (query.near && query.radiusKm >= 1000) {
+        console.log('getListings: Country search - skipping radius filtering, showing all', filteredData.length, 'results');
       }
     }
 
