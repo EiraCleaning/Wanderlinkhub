@@ -37,8 +37,11 @@ export async function GET(request: NextRequest) {
       to: query.to
     });
 
+    console.info('[LISTINGS API] Parsing query with validation...');
     const validatedQuery = ListingsQuerySchema.parse(query);
+    console.info('[LISTINGS API] Validation passed, calling getListings...');
     const listings = await getListings(validatedQuery);
+    console.info('[LISTINGS API] getListings returned', listings.length, 'listings');
 
     return NextResponse.json({
       success: true,
