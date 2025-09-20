@@ -85,6 +85,7 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
         const radiusKm = query.radiusKm || 50; // Default to 50km if not specified
         
         console.log('getListings: Processing coordinates:', { lng, lat, radiusKm });
+        console.log('getListings: Before coordinate filtering, have', filteredData.length, 'listings');
         
         // Add distance to each listing, filter by radius, and sort by distance
         filteredData = filteredData
@@ -92,6 +93,7 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
             const distance = listing.lat && listing.lng ? 
               calculateDistance(lat, lng, listing.lat, listing.lng) : 
               Infinity;
+            console.log('getListings: Listing', listing.title, 'distance:', distance, 'radius:', radiusKm, 'within radius:', distance <= radiusKm);
             return {
               ...listing,
               distance
