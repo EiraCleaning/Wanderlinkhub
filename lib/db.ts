@@ -80,33 +80,28 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
 
     // If we have coordinates, add distance ranking and radius filtering
     if (query.near) {
-      try {
-        const [lng, lat] = query.near;
-        const radiusKm = query.radiusKm || 50; // Default to 50km if not specified
-        
-        console.log('getListings: Processing coordinates:', { lng, lat, radiusKm });
-        console.log('getListings: Before coordinate filtering, have', filteredData.length, 'listings');
-        
-        // Add distance to each listing, filter by radius, and sort by distance
-        filteredData = filteredData
-          .map(listing => {
-            const distance = listing.lat && listing.lng ? 
-              calculateDistance(lat, lng, listing.lat, listing.lng) : 
-              Infinity;
-            console.log('getListings: Listing', listing.title, 'distance:', distance, 'radius:', radiusKm, 'within radius:', distance <= radiusKm);
-            return {
-              ...listing,
-              distance
-            };
-          })
-          .filter(listing => listing.distance <= radiusKm) // Filter by radius
-          .sort((a, b) => a.distance - b.distance); // Sort by distance
-        
-        console.log('getListings: Filtered by radius', radiusKm, 'km and sorted by distance from', lat, lng, 'Found', filteredData.length, 'listings');
-      } catch (error) {
-        console.error('getListings: Error processing coordinates:', error);
-        // Continue without coordinate filtering if there's an error
-      }
+      const [lng, lat] = query.near;
+      const radiusKm = query.radiusKm || 50; // Default to 50km if not specified
+      
+      console.log('getListings: Processing coordinates:', { lng, lat, radiusKm });
+      console.log('getListings: Before coordinate filtering, have', filteredData.length, 'listings');
+      
+      // Add distance to each listing, filter by radius, and sort by distance
+      filteredData = filteredData
+        .map(listing => {
+          const distance = listing.lat && listing.lng ? 
+            calculateDistance(lat, lng, listing.lat, listing.lng) : 
+            Infinity;
+          console.log('getListings: Listing', listing.title, 'distance:', distance, 'radius:', radiusKm, 'within radius:', distance <= radiusKm);
+          return {
+            ...listing,
+            distance
+          };
+        })
+        .filter(listing => listing.distance <= radiusKm) // Filter by radius
+        .sort((a, b) => a.distance - b.distance); // Sort by distance
+      
+      console.log('getListings: Filtered by radius', radiusKm, 'km and sorted by distance from', lat, lng, 'Found', filteredData.length, 'listings');
     }
 
     console.log('getListings: Returning', filteredData.length, 'filtered listings');
