@@ -69,7 +69,7 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
 
     if (query.location) {
       if (query.near && query.radiusKm) {
-        // Use radius-based filtering with coordinates
+        // Use radius-based filtering with coordinates for city-level searches
         const [lng, lat] = query.near;
         const radiusKm = query.radiusKm;
         
@@ -80,7 +80,7 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
         });
         console.log('getListings: Filtering by radius:', radiusKm, 'km from', lat, lng);
       } else {
-        // Fall back to text-based filtering
+        // Use text-based filtering for country-level searches
         const locationTerm = query.location.toLowerCase();
         filteredData = filteredData.filter(listing => 
           listing.city?.toLowerCase().includes(locationTerm) ||

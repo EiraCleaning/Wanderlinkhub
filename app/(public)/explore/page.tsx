@@ -75,9 +75,10 @@ export default function ExplorePage() {
         params.append('location', filters.location);
         
         // If we have coordinates, use radius-based filtering
-        if (filters.coordinates) {
+        // But only for city-level searches, not country-level
+        if (filters.coordinates && filters.location.split(',').length > 1) {
           params.append('near', `${filters.coordinates.lng},${filters.coordinates.lat}`);
-          params.append('radiusKm', '50'); // 50km radius
+          params.append('radiusKm', '50'); // 50km radius for cities
         }
       }
       
