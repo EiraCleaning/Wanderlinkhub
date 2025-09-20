@@ -64,7 +64,7 @@ export const ListingsQuerySchema = z.object({
   to: z.string().optional(), // ISO date string
   verified: z.boolean().optional(), // Allow undefined to show all listings
   near: z.array(z.number()).length(2).optional(), // [lng, lat] format
-  radiusKm: z.number().min(0.1).max(1000).optional(),
+  radiusKm: z.number().min(0.1).max(5000).optional(), // Allow up to 5000km for country searches
   location: z.string().optional(), // Text-based location search
 });
 
