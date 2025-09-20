@@ -21,7 +21,7 @@ interface SearchFiltersProps {
 }
 
 export default function SearchFilters({ variant = 'hero', onApply }: SearchFiltersProps) {
-  console.log('🔧 SearchFilters component loaded, variant:', variant, 'onApply:', !!onApply);
+  console.log('🔧 SearchFilters component loaded v2, variant:', variant, 'onApply:', !!onApply);
   const [location, setLocation] = useState('');
   const [type, setType] = useState<ListingType | 'all'>('all');
   const [fromDate, setFromDate] = useState('');
