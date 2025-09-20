@@ -42,6 +42,7 @@ export default function ExplorePage() {
   }, []); // Fetch on mount
 
   useEffect(() => {
+    console.log('🔄 [EFFECT] Filters changed, calling fetchListings:', filters);
     fetchListings();
   }, [filters]); // Refetch when filters change
 
@@ -154,6 +155,7 @@ export default function ExplorePage() {
   };
 
   const handleFiltersApply = (newFilters: FilterState) => {
+    console.log('🚀 [FILTERS] handleFiltersApply called with:', newFilters);
     setFilters(newFilters);
     // Set flag to scroll to map after data loads
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
