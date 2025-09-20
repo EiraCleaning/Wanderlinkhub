@@ -27,6 +27,7 @@ export default function ExplorePage() {
   const [selectedListing, setSelectedListing] = useState<ListingResponse | null>(null);
   const [shouldScrollToMap, setShouldScrollToMap] = useState(false);
   const requestIdRef = useRef(0);
+  const [debugInfo, setDebugInfo] = useState<string>(''); // Debug info for display
   const [filters, setFilters] = useState<FilterState>({
     location: '',
     type: 'all',
@@ -105,31 +106,42 @@ export default function ExplorePage() {
       const params = buildQuery(filters);
       const url = `/api/listings?${new URLSearchParams(params).toString()}`;
       
-      // Debug logging
-      console.debug('[SEARCH] request params', JSON.stringify({
+      // Debug logging - using console.log for visibility
+      console.log('🔍 [SEARCH] Starting search...');
+      console.log('🔍 [SEARCH] Filters:', {
         location: filters.location,
         coordinates: filters.coordinates,
         type: filters.type,
         fromDate: filters.fromDate,
         toDate: filters.toDate,
-        verifiedOnly: filters.verifiedOnly,
-        builtParams: params
-      }, null, 2));
-      console.debug('[SEARCH] URL', url);
+        verifiedOnly: filters.verifiedOnly
+      });
+      console.log('🔍 [SEARCH] Built params:', params);
+      console.log('🔍 [SEARCH] Full URL:', url);
+      
+      // Update debug info for visual debugging
+      setDebugInfo(`Searching: "${filters.location}" | Params: ${JSON.stringify(params)}`);
       
       const response = await fetch(url);
       
       // Check if this is still the latest request
       if (requestId !== requestIdRef.current) {
-        console.debug('[SEARCH] Stale response ignored, requestId:', requestId);
+        console.log('⚠️ [SEARCH] Stale response ignored, requestId:', requestId);
         return;
       }
       
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ [SEARCH] API response:', {
+          success: data.success,
+          count: data.count,
+          listings: data.listings?.length || 0
+        });
         setListings(data.listings || []);
+        setDebugInfo(`Found ${data.listings?.length || 0} listings`);
       } else {
-        console.error('Explore: API response not ok:', response.status);
+        console.error('❌ [SEARCH] API response not ok:', response.status);
+        setDebugInfo(`API Error: ${response.status}`);
       }
     } catch (error) {
       console.error('Error fetching listings:', error);
@@ -189,11 +201,16 @@ export default function ExplorePage() {
       
       {/* Map Section */}
       <section className="min-h-[70vh] p-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white border border-[var(--wl-border)] rounded-2xl shadow-card p-4">
-            <h2 className="text-xl font-semibold text-[var(--wl-ink)] mb-4 brand-heading">
-              Explore Listings
-            </h2>
+             <div className="max-w-5xl mx-auto">
+               <div className="bg-white border border-[var(--wl-border)] rounded-2xl shadow-card p-4">
+                 <h2 className="text-xl font-semibold text-[var(--wl-ink)] mb-4 brand-heading">
+                   Explore Listings
+                 </h2>
+                 {debugInfo && (
+                   <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm">
+                     <strong>Debug:</strong> {debugInfo}
+                   </div>
+                 )}
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {[...Array(6)].map((_, i) => (
