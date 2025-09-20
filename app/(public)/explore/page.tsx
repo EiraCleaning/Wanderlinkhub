@@ -74,12 +74,10 @@ export default function ExplorePage() {
       if (filters.location) {
         params.append('location', filters.location);
         
-        // Always send coordinates if available for distance ranking
-        if (filters.coordinates) {
+        // Only send coordinates for city searches (multi-part location strings)
+        if (filters.coordinates && filters.location.split(',').length > 1) {
           params.append('near', `${filters.coordinates.lng},${filters.coordinates.lat}`);
-          // Use different radius based on search type
-          const isCountrySearch = filters.location.split(',').length === 1;
-          params.append('radiusKm', isCountrySearch ? '999999' : '50'); // No radius limit for countries, 50km for cities
+          params.append('radiusKm', '50'); // 50km radius for cities
         }
       }
       
