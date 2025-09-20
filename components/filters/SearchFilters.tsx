@@ -21,6 +21,7 @@ interface SearchFiltersProps {
 }
 
 export default function SearchFilters({ variant = 'hero', onApply }: SearchFiltersProps) {
+  console.log('🔧 SearchFilters component loaded, variant:', variant, 'onApply:', !!onApply);
   const [location, setLocation] = useState('');
   const [type, setType] = useState<ListingType | 'all'>('all');
   const [fromDate, setFromDate] = useState('');
@@ -54,6 +55,7 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
   };
 
   const handleApply = () => {
+    console.log('🔧 handleApply called!');
     const filters = {
       location,
       type,
@@ -65,6 +67,7 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
         lng: selectedLocation.lng
       } : undefined
     };
+    console.log('🔧 Calling onApply with filters:', filters);
     onApply?.(filters);
   };
 
