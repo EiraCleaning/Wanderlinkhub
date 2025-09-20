@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AppShell from '@/components/AppShell';
 import HeroExplore from '@/components/HeroExplore';
 import StickyFilters from '@/components/StickyFilters';
@@ -26,6 +26,7 @@ export default function ExplorePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<ListingResponse | null>(null);
   const [shouldScrollToMap, setShouldScrollToMap] = useState(false);
+  const requestIdRef = useRef(0);
   const [filters, setFilters] = useState<FilterState>({
     location: '',
     type: 'all',
@@ -59,39 +60,71 @@ export default function ExplorePage() {
     }
   }, [isLoading, shouldScrollToMap]);
 
-  const fetchListings = async () => {
-    try {
-      
-      // Build query parameters
-      const params = new URLSearchParams();
-      
-      // No verified filter - show all listings
-      
-      if (filters.type !== 'all') {
-        params.append('ltype', filters.type);
-      }
-      
-      if (filters.location) {
-        params.append('location', filters.location);
-        
-        // Only send coordinates for city searches (multi-part location strings)
-        if (filters.coordinates && filters.location.split(',').length > 1) {
-          params.append('near', `${filters.coordinates.lng},${filters.coordinates.lat}`);
-          params.append('radiusKm', '50'); // 50km radius for cities
-        }
-      }
-      
-      if (filters.fromDate) {
-        params.append('from', filters.fromDate);
-      }
-      
-      if (filters.toDate) {
-        params.append('to', filters.toDate);
-      }
+  // Bullet-proof query builder
+  const buildQuery = (filters: FilterState) => {
+    const params: Record<string, string> = {};
+    
+    // Text search
+    if (filters.location?.trim()) {
+      params.location = filters.location.trim();
+    }
+    
+    // Type filter
+    if (filters.type !== 'all') {
+      params.ltype = filters.type;
+    }
+    
+    // Date filters
+    if (filters.fromDate) {
+      params.from = filters.fromDate;
+    }
+    if (filters.toDate) {
+      params.to = filters.toDate;
+    }
+    
+    // Geo filters - only for city-level searches (multi-part location strings)
+    const isCitySearch = filters.location && filters.location.split(',').length > 1;
+    const hasValidCoords = filters.coordinates && 
+      filters.coordinates.lat != null && 
+      filters.coordinates.lng != null &&
+      filters.coordinates.lat !== 0 && 
+      filters.coordinates.lng !== 0;
+    
+    if (isCitySearch && hasValidCoords) {
+      params.near = `${filters.coordinates.lng},${filters.coordinates.lat}`;
+      params.radiusKm = '50'; // 50km radius for cities
+    }
+    
+    return params;
+  };
 
-      const url = `/api/listings?${params.toString()}`;
+  const fetchListings = async () => {
+    const requestId = ++requestIdRef.current;
+    
+    try {
+      const params = buildQuery(filters);
+      const url = `/api/listings?${new URLSearchParams(params).toString()}`;
+      
+      // Debug logging
+      console.debug('[SEARCH] request params', JSON.stringify({
+        location: filters.location,
+        coordinates: filters.coordinates,
+        type: filters.type,
+        fromDate: filters.fromDate,
+        toDate: filters.toDate,
+        verifiedOnly: filters.verifiedOnly,
+        builtParams: params
+      }, null, 2));
+      console.debug('[SEARCH] URL', url);
       
       const response = await fetch(url);
+      
+      // Check if this is still the latest request
+      if (requestId !== requestIdRef.current) {
+        console.debug('[SEARCH] Stale response ignored, requestId:', requestId);
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setListings(data.listings || []);
@@ -101,7 +134,10 @@ export default function ExplorePage() {
     } catch (error) {
       console.error('Error fetching listings:', error);
     } finally {
-      setIsLoading(false);
+      // Only update loading state if this is still the latest request
+      if (requestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 

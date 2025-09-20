@@ -26,6 +26,17 @@ export async function GET(request: NextRequest) {
       location: searchParams.get('location') || undefined,
     };
 
+    // Debug logging
+    console.info('[LISTINGS API] received params:', {
+      location: query.location,
+      near: query.near,
+      radiusKm: query.radiusKm,
+      ltype: query.ltype,
+      verified: query.verified,
+      from: query.from,
+      to: query.to
+    });
+
     const validatedQuery = ListingsQuerySchema.parse(query);
     const listings = await getListings(validatedQuery);
 
