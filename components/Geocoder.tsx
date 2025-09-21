@@ -70,7 +70,7 @@ export default function Geocoder({
     try {
       // First try with all types
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=12&language=en`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=12&language=en&proximity=-74.006,40.7128`
       );
       
       if (response.ok) {
@@ -196,7 +196,7 @@ export default function Geocoder({
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder="Search for a country, city, or location..."
+          placeholder="Search for a country, city, or location... (v2)"
           className="w-full pl-10 pr-10 py-2 border border-[var(--wl-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:border-[var(--wl-sky)]"
         />
         
