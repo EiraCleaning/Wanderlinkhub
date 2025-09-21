@@ -126,16 +126,18 @@ export default function Geocoder({
   };
 
   const handleResultSelect = (result: GeocodingResult) => {
-    // Safety check for context array
-    if (!result.context || !Array.isArray(result.context)) {
+    console.log('handleResultSelect called with:', result.place_name, result);
+    
+    // Safety check for context array - but allow countries without context
+    if (result.context && !Array.isArray(result.context)) {
       console.warn('Invalid result context:', result);
       return;
     }
     
-    // Parse location components
-    const city = result.context.find(ctx => ctx.id.startsWith('place'))?.text || '';
-    const region = result.context.find(ctx => ctx.id.startsWith('region'))?.text || '';
-    const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
+    // Parse location components - handle countries without context
+    const city = result.context?.find(ctx => ctx.id.startsWith('place'))?.text || '';
+    const region = result.context?.find(ctx => ctx.id.startsWith('region'))?.text || '';
+    const country = result.context?.find(ctx => ctx.id.startsWith('country'))?.text || '';
     
     // Improved country detection - check place_type array for country
     const isCountry = result.place_type && result.place_type.includes('country') ||
@@ -238,6 +240,7 @@ export default function Geocoder({
                   <button
                     key={index}
                     onClick={(e) => {
+                      console.log('Country clicked:', result.place_name, 'isCountry:', isCountry);
                       e.preventDefault();
                       e.stopPropagation();
                       handleResultSelect(result);
