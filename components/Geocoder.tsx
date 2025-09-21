@@ -98,6 +98,7 @@ export default function Geocoder({
           validResults = [...countryResults, ...validResults].slice(0, 12);
         }
         
+        console.log('Final results for', searchQuery, ':', validResults.map(r => ({ name: r.place_name, type: r.place_type })));
         setResults(validResults);
       }
     } catch (error) {
@@ -229,7 +230,7 @@ export default function Geocoder({
                                  result.place_name.includes('country') || 
                                  (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
                                  result.place_name.split(',').length === 1 && result.context && result.context.find(ctx => ctx.id.startsWith('country'));
-                const isCity = result.place_type && (result.place_type.includes('place') || result.place_type.includes('locality'));
+                const isCity = result.place_type && (result.place_type.includes('place') || result.place_type.includes('locality')) && !isCountry;
                 const country = result.context && result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
                 return (
