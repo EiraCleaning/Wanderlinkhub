@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import BottomNav from './BottomNav';
 import DesktopNav from './DesktopNav';
+import Footer from './Footer';
 
 interface AppShellProps {
   children: ReactNode;
@@ -17,6 +18,11 @@ export default function AppShell({ children, className = '' }: AppShellProps) {
       <main className="pb-20 md:pb-0">
         {children}
       </main>
+      
+      {/* Footer - only visible on desktop */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
       
       {/* Bottom navigation - only visible on mobile */}
       <div className="md:hidden">

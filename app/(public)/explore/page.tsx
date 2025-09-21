@@ -29,7 +29,6 @@ export default function ExplorePage() {
   const [selectedListing, setSelectedListing] = useState<ListingResponse | null>(null);
   const [shouldScrollToMap, setShouldScrollToMap] = useState(false);
   const requestIdRef = useRef(0);
-  const [debugInfo, setDebugInfo] = useState<string>(''); // Debug info for display
   const [filters, setFilters] = useState<FilterState>({
     location: '',
     type: 'all',
@@ -44,7 +43,6 @@ export default function ExplorePage() {
   }, []); // Fetch on mount
 
   useEffect(() => {
-    console.log('🔄 [EFFECT] Filters changed, calling fetchListings:', filters);
     fetchListings();
   }, [filters]); // Refetch when filters change
 
@@ -111,24 +109,6 @@ export default function ExplorePage() {
       const params = buildQuery(filters);
       const url = `/api/listings?${new URLSearchParams(params).toString()}`;
       
-      // Client-side logging - this will show in browser DevTools
-      console.info('[EXPLORE] Fetch →', url, params);
-      
-      // Debug logging - using console.log for visibility
-      console.log('🔍 [SEARCH] Starting search...');
-      console.log('🔍 [SEARCH] Filters:', {
-        location: filters.location,
-        coordinates: filters.coordinates,
-        type: filters.type,
-        fromDate: filters.fromDate,
-        toDate: filters.toDate,
-        verifiedOnly: filters.verifiedOnly
-      });
-      console.log('🔍 [SEARCH] Built params:', params);
-      console.log('🔍 [SEARCH] Full URL:', url);
-      
-      // Update debug info for visual debugging
-      setDebugInfo(`Searching: "${filters.location}" | Params: ${JSON.stringify(params)}`);
       
       const response = await fetch(url, { 
         method: 'GET',
@@ -137,22 +117,14 @@ export default function ExplorePage() {
       
       // Check if this is still the latest request
       if (requestId !== requestIdRef.current) {
-        console.log('⚠️ [SEARCH] Stale response ignored, requestId:', requestId);
         return;
       }
       
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ [SEARCH] API response:', {
-          success: data.success,
-          count: data.count,
-          listings: data.listings?.length || 0
-        });
         setListings(data.listings || []);
-        setDebugInfo(`Found ${data.listings?.length || 0} listings`);
       } else {
-        console.error('❌ [SEARCH] API response not ok:', response.status);
-        setDebugInfo(`API Error: ${response.status}`);
+        console.error('Error fetching listings:', response.status);
       }
     } catch (error) {
       console.error('Error fetching listings:', error);
@@ -165,13 +137,7 @@ export default function ExplorePage() {
   };
 
   const handleFiltersApply = (newFilters: FilterState) => {
-    console.log('🚀 [FILTERS] handleFiltersApply called with:', newFilters);
-    console.log('🚀 [FILTERS] Location:', newFilters.location);
-    console.log('🚀 [FILTERS] Coordinates:', newFilters.coordinates);
-    console.log('🚀 [FILTERS] Is city search:', newFilters.location && newFilters.location.split(',').length > 1);
-    console.log('🚀 [FILTERS] Setting filters...');
     setFilters(newFilters);
-    console.log('🚀 [FILTERS] Filters set, should trigger useEffect');
     // Set flag to scroll to map after data loads
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setShouldScrollToMap(true);
@@ -223,11 +189,6 @@ export default function ExplorePage() {
                  <h2 className="text-xl font-semibold text-[var(--wl-ink)] mb-4 brand-heading">
                    Explore Listings
                  </h2>
-                 {debugInfo && (
-                   <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm">
-                     <strong>Debug:</strong> {debugInfo}
-                   </div>
-                 )}
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 {[...Array(6)].map((_, i) => (

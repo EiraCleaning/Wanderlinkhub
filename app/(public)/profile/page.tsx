@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { signOutAction } from '@/app/actions/signout';
 import FavouritesList from '@/components/FavouritesList';
+import FeedbackButton from '@/components/FeedbackButton';
 
 function ProfileContent() {
   const [user, setUser] = useState<any>(null);
@@ -513,6 +514,15 @@ function ProfileContent() {
             </div>
           </div>
         )}
+
+        {/* Feedback Section */}
+        <div className="mt-8 p-6 bg-white border border-[var(--wl-border)] rounded-2xl shadow-card">
+          <h3 className="text-lg font-semibold text-[var(--wl-ink)] mb-4">Help Us Improve</h3>
+          <p className="text-[var(--wl-slate)] mb-4">
+            Found a bug or have a feature idea? We'd love to hear from you!
+          </p>
+          <FeedbackButton />
+        </div>
       </div>
     </AppShell>
   );
