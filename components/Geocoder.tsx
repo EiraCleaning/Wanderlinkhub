@@ -179,7 +179,7 @@ export default function Geocoder({
 
   const handleInputBlur = () => {
     // Delay hiding results to allow clicking on them
-    setTimeout(() => setShowResults(false), 200);
+    setTimeout(() => setShowResults(false), 300);
   };
 
   return (
@@ -212,7 +212,10 @@ export default function Geocoder({
 
       {/* Search Results */}
       {showResults && (results.length > 0 || isSearching) && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-[var(--wl-border)] rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          className="absolute z-50 w-full mt-1 bg-white border border-[var(--wl-border)] rounded-md shadow-lg max-h-60 overflow-y-auto"
+          onMouseDown={(e) => e.preventDefault()} // Prevent input blur when clicking dropdown
+        >
           {isSearching ? (
             <div className="p-4 text-center text-[var(--wl-slate)]">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[var(--wl-sky)] mx-auto mb-2"></div>
@@ -231,7 +234,8 @@ export default function Geocoder({
                   <button
                     key={index}
                     onClick={() => handleResultSelect(result)}
-                    className="w-full px-4 py-3 text-left hover:bg-[var(--wl-beige)] focus:bg-[var(--wl-beige)] focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-inset"
+                    className="w-full px-4 py-3 text-left hover:bg-[var(--wl-beige)] focus:bg-[var(--wl-beige)] focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-inset cursor-pointer relative z-10"
+                    type="button"
                   >
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 text-[var(--wl-slate)] mr-2 flex-shrink-0" />
