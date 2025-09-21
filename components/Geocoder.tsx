@@ -177,9 +177,14 @@ export default function Geocoder({
     }
   };
 
-  const handleInputBlur = () => {
+  const handleInputBlur = (e: React.FocusEvent) => {
+    // Check if the blur is going to a dropdown item
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (relatedTarget && relatedTarget.closest('[data-dropdown-item]')) {
+      return; // Don't close if clicking on dropdown item
+    }
     // Delay hiding results to allow clicking on them
-    setTimeout(() => setShowResults(false), 300);
+    setTimeout(() => setShowResults(false), 100);
   };
 
   return (
@@ -214,7 +219,6 @@ export default function Geocoder({
       {showResults && (results.length > 0 || isSearching) && (
         <div 
           className="absolute z-50 w-full mt-1 bg-white border border-[var(--wl-border)] rounded-md shadow-lg max-h-60 overflow-y-auto"
-          onMouseDown={(e) => e.preventDefault()} // Prevent input blur when clicking dropdown
         >
           {isSearching ? (
             <div className="p-4 text-center text-[var(--wl-slate)]">
@@ -233,9 +237,18 @@ export default function Geocoder({
                 return (
                   <button
                     key={index}
-                    onClick={() => handleResultSelect(result)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleResultSelect(result);
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                     className="w-full px-4 py-3 text-left hover:bg-[var(--wl-beige)] focus:bg-[var(--wl-beige)] focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:ring-inset cursor-pointer relative z-10"
                     type="button"
+                    data-dropdown-item="true"
                   >
                     <div className="flex items-center">
                       <MapPin className="h-4 w-4 text-[var(--wl-slate)] mr-2 flex-shrink-0" />
