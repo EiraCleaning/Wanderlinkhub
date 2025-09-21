@@ -68,9 +68,9 @@ export default function Geocoder({
 
     setIsSearching(true);
     try {
-      // First try with all types
+      // First try with all types, but prioritize countries
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=12&language=en&proximity=-74.006,40.7128`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=12&language=en`
       );
       
       if (response.ok) {
@@ -82,24 +82,25 @@ export default function Geocoder({
           feature.place_name
         );
 
-        // If no good results and query looks like a country, try country-only search
-        if (validResults.length === 0 || !validResults.some(r => r.place_name.includes('country') || r.context.some(c => c.id.startsWith('country')))) {
-          const countryResponse = await fetch(
-            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country&limit=8&language=en`
+        // Always try country-only search for better country results
+        const countryResponse = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country&limit=8&language=en`
+        );
+        
+        if (countryResponse.ok) {
+          const countryData = await countryResponse.json();
+          console.log('Country search results for', searchQuery, ':', countryData);
+          const countryResults = (countryData.features || []).filter(feature => 
+            feature && 
+            feature.context && 
+            Array.isArray(feature.context) && 
+            feature.place_name
           );
           
-          if (countryResponse.ok) {
-            const countryData = await countryResponse.json();
-            const countryResults = (countryData.features || []).filter(feature => 
-              feature && 
-              feature.context && 
-              Array.isArray(feature.context) && 
-              feature.place_name
-            );
-            
-            // Combine results, prioritizing countries
-            validResults = [...countryResults, ...validResults].slice(0, 12);
-          }
+          console.log('Filtered country results:', countryResults);
+          
+          // Combine results, prioritizing countries at the top
+          validResults = [...countryResults, ...validResults].slice(0, 12);
         }
         
         setResults(validResults);
