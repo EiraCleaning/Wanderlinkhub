@@ -7,7 +7,7 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
     Math.sin(dLng/2) * Math.sin(dLng/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c; // Distance in kilometers
@@ -27,22 +27,22 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
       .limit(1000); // Set a high limit to get all listings
 
     // Apply verified filter
-    if (query.verified !== null) {
-      if (query.verified === true) {
+  if (query.verified !== null) {
+    if (query.verified === true) {
         supabaseQuery = supabaseQuery.eq('verify', 'verified');
-        console.log('getListings: Filtering for verified listings');
-      } else if (query.verified === false) {
+      console.log('getListings: Filtering for verified listings');
+    } else if (query.verified === false) {
         supabaseQuery = supabaseQuery.eq('verify', 'pending');
-        console.log('getListings: Filtering for pending listings');
-      }
+      console.log('getListings: Filtering for pending listings');
     }
-
+  }
+  
     // Apply type filter
-    if (query.ltype) {
+  if (query.ltype) {
       supabaseQuery = supabaseQuery.eq('ltype', query.ltype);
-      console.log('getListings: Filtering by type:', query.ltype);
-    }
-
+    console.log('getListings: Filtering by type:', query.ltype);
+  }
+  
     // Apply date filters
     if (query.from) {
       supabaseQuery = supabaseQuery.or(`is_permanent.eq.true,and(start_date.gte.${query.from})`);
@@ -69,15 +69,23 @@ export async function getListings(query: ListingsQuery = { verified: true }): Pr
     // Apply location filtering and ranking in JavaScript
     let filteredData = listings || [];
 
-    if (query.location) {
+  if (query.location) {
       // Always use text-based filtering first
       const locationTerm = query.location.toLowerCase();
-      filteredData = filteredData.filter(listing => 
-        listing.city?.toLowerCase().includes(locationTerm) ||
-        listing.region?.toLowerCase().includes(locationTerm) ||
-        listing.country?.toLowerCase().includes(locationTerm)
-      );
-      console.log('getListings: Filtering by location text:', query.location, 'Found', filteredData.length, 'matches');
+      
+      // Split the location into parts for more flexible matching
+      const locationParts = locationTerm.split(',').map(part => part.trim());
+      
+      filteredData = filteredData.filter(listing => {
+        // Check if any part of the search term matches any part of the listing
+        return locationParts.some(part => 
+          listing.city?.toLowerCase().includes(part) ||
+          listing.region?.toLowerCase().includes(part) ||
+          listing.country?.toLowerCase().includes(part)
+        );
+      });
+      
+      console.log('getListings: Filtering by location text:', query.location, 'Parts:', locationParts, 'Found', filteredData.length, 'matches');
     }
 
     // If we have coordinates, add distance ranking and radius filtering
@@ -160,7 +168,7 @@ export async function createListing(listing: CreateListing, userId: string): Pro
 
 export async function updateListing(id: string, updates: UpdateListing, userId: string): Promise<ListingResponse> {
   const supabase = createAdminClient();
-  
+
   const { data, error } = await supabase
     .from('listings')
     .update(updates)
