@@ -98,7 +98,12 @@ export default function Geocoder({
           validResults = [...countryResults, ...validResults].slice(0, 12);
         }
         
-        console.log('Final results for', searchQuery, ':', validResults.map(r => ({ name: r.place_name, type: r.place_type })));
+        console.log('Final results for', searchQuery, ':', validResults.map(r => ({ 
+          name: r.place_name, 
+          type: r.place_type,
+          isCountry: r.place_type?.includes('country'),
+          isCity: r.place_type?.includes('place') || r.place_type?.includes('locality')
+        })));
         setResults(validResults);
       }
     } catch (error) {
@@ -225,7 +230,11 @@ export default function Geocoder({
             </div>
           ) : (
             <div className="py-1">
-              {results.filter(result => result && result.place_name).map((result, index) => {
+              {results.filter(result => {
+                const isValid = result && result.place_name;
+                if (!isValid) console.log('Filtered out invalid result:', result);
+                return isValid;
+              }).map((result, index) => {
                 const isCountry = result.place_type && result.place_type.includes('country') ||
                                  result.place_name.includes('country') || 
                                  (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
@@ -233,6 +242,7 @@ export default function Geocoder({
                 const isCity = result.place_type && (result.place_type.includes('place') || result.place_type.includes('locality')) && !isCountry;
                 const country = result.context && result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
+                console.log('Rendering result:', result.place_name, 'isCountry:', isCountry, 'isCity:', isCity);
                 return (
                   <button
                     key={index}
