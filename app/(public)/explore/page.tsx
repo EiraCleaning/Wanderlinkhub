@@ -169,7 +169,7 @@ export default function ExplorePage() {
     console.log('🚀 [FILTERS] Location:', newFilters.location);
     console.log('🚀 [FILTERS] Coordinates:', newFilters.coordinates);
     console.log('🚀 [FILTERS] Is city search:', newFilters.location && newFilters.location.split(',').length > 1);
-still    console.log('🚀 [FILTERS] Setting filters...');
+    console.log('🚀 [FILTERS] Setting filters...');
     setFilters(newFilters);
     console.log('🚀 [FILTERS] Filters set, should trigger useEffect');
     // Set flag to scroll to map after data loads
