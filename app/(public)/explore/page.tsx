@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+
+export const dynamic = 'force-dynamic';
 import AppShell from '@/components/AppShell';
 import HeroExplore from '@/components/HeroExplore';
 import StickyFilters from '@/components/StickyFilters';
@@ -109,6 +111,9 @@ export default function ExplorePage() {
       const params = buildQuery(filters);
       const url = `/api/listings?${new URLSearchParams(params).toString()}`;
       
+      // Client-side logging - this will show in browser DevTools
+      console.info('[EXPLORE] Fetch →', url, params);
+      
       // Debug logging - using console.log for visibility
       console.log('🔍 [SEARCH] Starting search...');
       console.log('🔍 [SEARCH] Filters:', {
@@ -125,7 +130,10 @@ export default function ExplorePage() {
       // Update debug info for visual debugging
       setDebugInfo(`Searching: "${filters.location}" | Params: ${JSON.stringify(params)}`);
       
-      const response = await fetch(url);
+      const response = await fetch(url, { 
+        method: 'GET',
+        cache: 'no-store'
+      });
       
       // Check if this is still the latest request
       if (requestId !== requestIdRef.current) {
@@ -161,7 +169,7 @@ export default function ExplorePage() {
     console.log('🚀 [FILTERS] Location:', newFilters.location);
     console.log('🚀 [FILTERS] Coordinates:', newFilters.coordinates);
     console.log('🚀 [FILTERS] Is city search:', newFilters.location && newFilters.location.split(',').length > 1);
-    console.log('🚀 [FILTERS] Setting filters...');
+still    console.log('🚀 [FILTERS] Setting filters...');
     setFilters(newFilters);
     console.log('🚀 [FILTERS] Filters set, should trigger useEffect');
     // Set flag to scroll to map after data loads

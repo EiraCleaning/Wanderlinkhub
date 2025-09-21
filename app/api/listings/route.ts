@@ -14,6 +14,10 @@ export async function GET(request: NextRequest) {
     
     const { searchParams } = new URL(request.url);
     
+    // Server-side truth serum logging - this won't be stripped by minifier
+    const snapshot = Object.fromEntries(searchParams.entries());
+    console.log('[API:listings] params', snapshot);
+    
     // Parse and validate query parameters
     const query = {
       ltype: searchParams.get('ltype') || undefined,

@@ -98,6 +98,7 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
         handleApply();
       }}
     >
+      <span data-build="SearchFilters v9" style={{display:'none'}} />
       {/* Grid Layout */}
       <div className={`grid gap-3 ${
         isHero 
@@ -188,13 +189,13 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
         >
           Clear
         </button>
-        <button
-          type="button"
-          onClick={handleApply}
-          className="inline-flex items-center justify-center rounded-2xl bg-[var(--wl-forest)] px-4 py-2 text-white font-medium shadow hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wl-sky)] disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          Apply filters
-        </button>
+               <button
+                 type="button"
+                 onClick={handleApply}
+                 className="inline-flex items-center justify-center rounded-2xl bg-[var(--wl-forest)] px-4 py-2 text-white font-medium shadow hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wl-sky)] disabled:opacity-60 disabled:cursor-not-allowed"
+               >
+                 Apply filters v9
+               </button>
       </div>
     </form>
   );
