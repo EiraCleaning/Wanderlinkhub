@@ -68,19 +68,40 @@ export default function Geocoder({
 
     setIsSearching(true);
     try {
+      // First try with all types
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=8`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=12&language=en`
       );
       
       if (response.ok) {
         const data = await response.json();
-        // Filter out any invalid results before setting state
-        const validResults = (data.features || []).filter(feature => 
+        let validResults = (data.features || []).filter(feature => 
           feature && 
           feature.context && 
           Array.isArray(feature.context) && 
           feature.place_name
         );
+
+        // If no good results and query looks like a country, try country-only search
+        if (validResults.length === 0 || !validResults.some(r => r.place_name.includes('country') || r.context.some(c => c.id.startsWith('country')))) {
+          const countryResponse = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country&limit=8&language=en`
+          );
+          
+          if (countryResponse.ok) {
+            const countryData = await countryResponse.json();
+            const countryResults = (countryData.features || []).filter(feature => 
+              feature && 
+              feature.context && 
+              Array.isArray(feature.context) && 
+              feature.place_name
+            );
+            
+            // Combine results, prioritizing countries
+            validResults = [...countryResults, ...validResults].slice(0, 12);
+          }
+        }
+        
         setResults(validResults);
       }
     } catch (error) {
@@ -117,14 +138,15 @@ export default function Geocoder({
     const region = result.context.find(ctx => ctx.id.startsWith('region'))?.text || '';
     const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
     
-    // Check if this is a country-level result
+    // Improved country detection
     const isCountry = result.place_name.includes('country') || 
-                     (result.context.length === 1 && result.context[0].id.startsWith('country'));
+                     (result.context.length === 1 && result.context[0].id.startsWith('country')) ||
+                     result.place_name.split(',').length === 1 && country; // Single result with country context
     
     const location = {
       city: isCountry ? '' : (city || result.place_name.split(',')[0]),
       region: isCountry ? '' : (region || ''),
-      country: country || (isCountry ? result.place_name : ''),
+      country: country || (isCountry ? result.place_name.split(',')[0] : ''),
       lat: result.center[1],
       lng: result.center[0]
     };
@@ -200,7 +222,8 @@ export default function Geocoder({
             <div className="py-1">
               {results.filter(result => result && result.context && Array.isArray(result.context)).map((result, index) => {
                 const isCountry = result.place_name.includes('country') || 
-                                 (result.context.length === 1 && result.context[0].id.startsWith('country'));
+                                 (result.context.length === 1 && result.context[0].id.startsWith('country')) ||
+                                 result.place_name.split(',').length === 1 && result.context.find(ctx => ctx.id.startsWith('country'));
                 const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
                 return (
@@ -213,7 +236,7 @@ export default function Geocoder({
                       <MapPin className="h-4 w-4 text-[var(--wl-slate)] mr-2 flex-shrink-0" />
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-[var(--wl-ink)] truncate">
-                          {result.place_name}
+                          {isCountry ? (country || result.place_name.split(',')[0]) : result.place_name}
                         </div>
                         {isCountry && (
                           <div className="text-xs text-[var(--wl-slate)] mt-1">
