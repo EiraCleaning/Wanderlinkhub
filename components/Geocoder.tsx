@@ -68,9 +68,9 @@ export default function Geocoder({
 
     setIsSearching(true);
     try {
-      // First try with all types, but prioritize countries
+      // First try with all types, but prioritize countries and major cities
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood&limit=12&language=en`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood,district&limit=15&language=en&autocomplete=true`
       );
       
       if (response.ok) {
@@ -83,19 +83,16 @@ export default function Geocoder({
 
         // Always try country-only search for better country results
         const countryResponse = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country&limit=8&language=en`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country&limit=5&language=en&autocomplete=true`
         );
         
         if (countryResponse.ok) {
           const countryData = await countryResponse.json();
-          console.log('Country search results for', searchQuery, ':', countryData);
           const countryResults = (countryData.features || []).filter(feature => 
             feature && 
             feature.place_name &&
             (feature.context ? Array.isArray(feature.context) : true) // Allow features without context (like countries)
           );
-          
-          console.log('Filtered country results:', countryResults);
           
           // Combine results, prioritizing countries at the top
           validResults = [...countryResults, ...validResults].slice(0, 12);
@@ -126,8 +123,6 @@ export default function Geocoder({
   };
 
   const handleResultSelect = (result: GeocodingResult) => {
-    console.log('handleResultSelect called with:', result.place_name, result);
-    
     // Safety check for context array - but allow countries without context
     if (result.context && !Array.isArray(result.context)) {
       console.warn('Invalid result context:', result);
@@ -234,13 +229,13 @@ export default function Geocoder({
                                  result.place_name.includes('country') || 
                                  (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
                                  result.place_name.split(',').length === 1 && result.context && result.context.find(ctx => ctx.id.startsWith('country'));
+                const isCity = result.place_type && (result.place_type.includes('place') || result.place_type.includes('locality'));
                 const country = result.context && result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
                 return (
                   <button
                     key={index}
                     onClick={(e) => {
-                      console.log('Country clicked:', result.place_name, 'isCountry:', isCountry);
                       e.preventDefault();
                       e.stopPropagation();
                       handleResultSelect(result);
@@ -262,6 +257,11 @@ export default function Geocoder({
                         {isCountry && (
                           <div className="text-xs text-[var(--wl-slate)] mt-1">
                             🌍 Country
+                          </div>
+                        )}
+                        {isCity && !isCountry && (
+                          <div className="text-xs text-[var(--wl-slate)] mt-1">
+                            🏙️ City
                           </div>
                         )}
                       </div>
