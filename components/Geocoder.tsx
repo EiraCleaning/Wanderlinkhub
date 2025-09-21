@@ -140,11 +140,8 @@ export default function Geocoder({
     const region = result.context?.find(ctx => ctx.id.startsWith('region'))?.text || '';
     const country = result.context?.find(ctx => ctx.id.startsWith('country'))?.text || '';
     
-    // Improved country detection - check place_type array for country
-    const isCountry = result.place_type && result.place_type.includes('country') ||
-                     result.place_name.includes('country') || 
-                     (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
-                     result.place_name.split(',').length === 1 && country; // Single result with country context
+    // Improved country detection - only check place_type array for country
+    const isCountry = result.place_type && result.place_type.includes('country');
     
     const location = {
       city: isCountry ? '' : (city || result.place_name.split(',')[0]),
@@ -235,10 +232,7 @@ export default function Geocoder({
                 if (!isValid) console.log('Filtered out invalid result:', result);
                 return isValid;
               }).map((result, index) => {
-                const isCountry = result.place_type && result.place_type.includes('country') ||
-                                 result.place_name.includes('country') || 
-                                 (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
-                                 result.place_name.split(',').length === 1 && result.context && result.context.find(ctx => ctx.id.startsWith('country'));
+                const isCountry = result.place_type && result.place_type.includes('country');
                 const isCity = result.place_type && (result.place_type.includes('place') || result.place_type.includes('locality')) && !isCountry;
                 const country = result.context && result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
