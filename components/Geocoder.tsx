@@ -77,9 +77,8 @@ export default function Geocoder({
         const data = await response.json();
         let validResults = (data.features || []).filter(feature => 
           feature && 
-          feature.context && 
-          Array.isArray(feature.context) && 
-          feature.place_name
+          feature.place_name &&
+          (feature.context ? Array.isArray(feature.context) : true) // Allow features without context (like countries)
         );
 
         // Always try country-only search for better country results
@@ -92,9 +91,8 @@ export default function Geocoder({
           console.log('Country search results for', searchQuery, ':', countryData);
           const countryResults = (countryData.features || []).filter(feature => 
             feature && 
-            feature.context && 
-            Array.isArray(feature.context) && 
-            feature.place_name
+            feature.place_name &&
+            (feature.context ? Array.isArray(feature.context) : true) // Allow features without context (like countries)
           );
           
           console.log('Filtered country results:', countryResults);
@@ -139,9 +137,10 @@ export default function Geocoder({
     const region = result.context.find(ctx => ctx.id.startsWith('region'))?.text || '';
     const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
     
-    // Improved country detection
-    const isCountry = result.place_name.includes('country') || 
-                     (result.context.length === 1 && result.context[0].id.startsWith('country')) ||
+    // Improved country detection - check place_type array for country
+    const isCountry = result.place_type && result.place_type.includes('country') ||
+                     result.place_name.includes('country') || 
+                     (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
                      result.place_name.split(',').length === 1 && country; // Single result with country context
     
     const location = {
@@ -221,11 +220,12 @@ export default function Geocoder({
             </div>
           ) : (
             <div className="py-1">
-              {results.filter(result => result && result.context && Array.isArray(result.context)).map((result, index) => {
-                const isCountry = result.place_name.includes('country') || 
-                                 (result.context.length === 1 && result.context[0].id.startsWith('country')) ||
-                                 result.place_name.split(',').length === 1 && result.context.find(ctx => ctx.id.startsWith('country'));
-                const country = result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
+              {results.filter(result => result && result.place_name).map((result, index) => {
+                const isCountry = result.place_type && result.place_type.includes('country') ||
+                                 result.place_name.includes('country') || 
+                                 (result.context && result.context.length === 1 && result.context[0].id.startsWith('country')) ||
+                                 result.place_name.split(',').length === 1 && result.context && result.context.find(ctx => ctx.id.startsWith('country'));
+                const country = result.context && result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
                 return (
                   <button
