@@ -68,18 +68,27 @@ export default function Geocoder({
 
     setIsSearching(true);
     try {
-      // First try with all types, but prioritize countries and major cities
+      // Search for countries and major cities only
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place,locality,neighborhood,district&limit=15&language=en&autocomplete=true`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place&limit=20&language=en&autocomplete=true`
       );
       
       if (response.ok) {
         const data = await response.json();
-        let validResults = (data.features || []).filter(feature => 
-          feature && 
-          feature.place_name &&
-          (feature.context ? Array.isArray(feature.context) : true) // Allow features without context (like countries)
-        );
+        let validResults = (data.features || []).filter(feature => {
+          if (!feature || !feature.place_name) return false;
+          if (feature.context && !Array.isArray(feature.context)) return false; // Allow features without context (like countries)
+          
+          // Only include countries and major cities (places), exclude neighborhoods and districts
+          const isCountry = feature.place_type && feature.place_type.includes('country');
+          const isMajorCity = feature.place_type && feature.place_type.includes('place') && 
+                             !feature.place_name.includes('arrondissement') && 
+                             !feature.place_name.includes('district') &&
+                             !feature.place_name.includes('neighborhood') &&
+                             !feature.place_name.includes('borough');
+          
+          return isCountry || isMajorCity;
+        });
 
         // Always try country-only search for better country results
         const countryResponse = await fetch(
@@ -98,12 +107,6 @@ export default function Geocoder({
           validResults = [...countryResults, ...validResults].slice(0, 12);
         }
         
-        console.log('Final results for', searchQuery, ':', validResults.map(r => ({ 
-          name: r.place_name, 
-          type: r.place_type,
-          isCountry: r.place_type?.includes('country'),
-          isCity: r.place_type?.includes('place') || r.place_type?.includes('locality')
-        })));
         setResults(validResults);
       }
     } catch (error) {
@@ -227,16 +230,11 @@ export default function Geocoder({
             </div>
           ) : (
             <div className="py-1">
-              {results.filter(result => {
-                const isValid = result && result.place_name;
-                if (!isValid) console.log('Filtered out invalid result:', result);
-                return isValid;
-              }).map((result, index) => {
+              {results.filter(result => result && result.place_name).map((result, index) => {
                 const isCountry = result.place_type && result.place_type.includes('country');
-                const isCity = result.place_type && (result.place_type.includes('place') || result.place_type.includes('locality')) && !isCountry;
+                const isCity = result.place_type && result.place_type.includes('place') && !isCountry;
                 const country = result.context && result.context.find(ctx => ctx.id.startsWith('country'))?.text || '';
                 
-                console.log('Rendering result:', result.place_name, 'isCountry:', isCountry, 'isCity:', isCity);
                 return (
                   <button
                     key={index}
