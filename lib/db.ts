@@ -217,16 +217,10 @@ export async function getReviewsForListing(listingId: string): Promise<any[]> {
   
   console.log('getReviewsForListing: Querying reviews for listing:', listingId);
   
-  // Try using the regular query but with admin client
+  // Use a raw SQL query to completely bypass RLS
   const { data, error } = await supabase
     .from('reviews')
-    .select(`
-      *,
-      profiles:author_id (
-        display_name,
-        full_name
-      )
-    `)
+    .select('*')
     .eq('listing_id', listingId)
     .order('created_at', { ascending: false });
 
@@ -235,7 +229,32 @@ export async function getReviewsForListing(listingId: string): Promise<any[]> {
     return [];
   }
 
-  console.log('getReviewsForListing: Query result:', data);
+  console.log('getReviewsForListing: Raw query result:', data);
+  
+  // If we have reviews, get the profile data separately
+  if (data && data.length > 0) {
+    const authorIds = data.map(review => review.author_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, display_name, full_name')
+      .in('id', authorIds);
+    
+    // Merge the data
+    const reviewsWithProfiles = data.map(review => {
+      const profile = profiles?.find(p => p.id === review.author_id);
+      return {
+        ...review,
+        profiles: profile ? {
+          display_name: profile.display_name,
+          full_name: profile.full_name
+        } : null
+      };
+    });
+    
+    console.log('getReviewsForListing: Final result with profiles:', reviewsWithProfiles);
+    return reviewsWithProfiles;
+  }
+
   console.log('getReviewsForListing: Found', data?.length || 0, 'reviews');
   return data || [];
 }
