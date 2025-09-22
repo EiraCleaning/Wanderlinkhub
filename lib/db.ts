@@ -217,6 +217,26 @@ export async function getReviewsForListing(listingId: string): Promise<any[]> {
   
   console.log('getReviewsForListing: Querying reviews for listing:', listingId);
   
+  // First check if the listing is verified
+  const { data: listing, error: listingError } = await supabase
+    .from('listings')
+    .select('verify')
+    .eq('id', listingId)
+    .single();
+  
+  if (listingError) {
+    console.error('Error fetching listing:', listingError);
+    return [];
+  }
+  
+  console.log('getReviewsForListing: Listing verify status:', listing.verify);
+  
+  // Only fetch reviews if listing is verified or pending
+  if (listing.verify !== 'verified' && listing.verify !== 'pending') {
+    console.log('getReviewsForListing: Listing not verified, returning empty array');
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('reviews')
     .select(`
