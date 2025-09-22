@@ -46,10 +46,14 @@ export default function ListingDetailPage() {
 
   const fetchReviews = async () => {
     try {
+      console.log('Fetching reviews for listing:', listingId);
       const response = await fetch(`/api/reviews?listing_id=${listingId}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Reviews API response:', data);
         setReviews(data.reviews || []);
+      } else {
+        console.error('Failed to fetch reviews:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
@@ -82,11 +86,13 @@ export default function ListingDetailPage() {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('Review submission result:', result);
         setUserReview(result.review);
         await fetchReviews(); // Refresh reviews
         alert('Review submitted successfully!');
       } else {
         const error = await response.json();
+        console.error('Review submission error:', error);
         alert(`Error: ${error.message || 'Failed to submit review'}`);
       }
     } catch (error) {
