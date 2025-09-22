@@ -183,3 +183,54 @@ export async function updateListing(id: string, updates: UpdateListing, userId: 
 
   return data as ListingResponse;
 }
+
+// REVIEW FUNCTIONS
+export async function createReview(review: {
+  listing_id: string;
+  author_id: string;
+  author_name: string;
+  rating: number;
+  comment?: string;
+}, userId: string): Promise<any> {
+  const supabase = createAdminClient();
+  
+  const { data, error } = await supabase
+    .from('reviews')
+    .insert({
+      listing_id: review.listing_id,
+      author_id: review.author_id,
+      rating: review.rating,
+      comment: review.comment || null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create review: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function getReviewsForListing(listingId: string): Promise<any[]> {
+  const supabase = createAdminClient();
+  
+  const { data, error } = await supabase
+    .from('reviews')
+    .select(`
+      *,
+      profiles:author_id (
+        display_name,
+        full_name
+      )
+    `)
+    .eq('listing_id', listingId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching reviews:', error);
+    return [];
+  }
+
+  return data || [];
+}
