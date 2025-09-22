@@ -217,26 +217,25 @@ export async function getReviewsForListing(listingId: string): Promise<any[]> {
   
   console.log('getReviewsForListing: Querying reviews for listing:', listingId);
   
-  // Use a direct SQL query to bypass RLS completely
-  const { data, error } = await supabase.rpc('exec_sql', {
-    sql: `
-      SELECT 
-        r.*,
-        p.display_name,
-        p.full_name
-      FROM reviews r
-      LEFT JOIN profiles p ON p.id = r.author_id
-      WHERE r.listing_id = $1
-      ORDER BY r.created_at DESC
-    `,
-    params: [listingId]
-  });
+  // Try using the regular query but with admin client
+  const { data, error } = await supabase
+    .from('reviews')
+    .select(`
+      *,
+      profiles:author_id (
+        display_name,
+        full_name
+      )
+    `)
+    .eq('listing_id', listingId)
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching reviews:', error);
     return [];
   }
 
+  console.log('getReviewsForListing: Query result:', data);
   console.log('getReviewsForListing: Found', data?.length || 0, 'reviews');
   return data || [];
 }
