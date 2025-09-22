@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ReviewSchema } from '@/lib/validation';
 import { createReview, getReviewsForListing } from '@/lib/db';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabaseClient';
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +33,27 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // For testing purposes, bypass authentication
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { success: false, message: 'Authorization token required' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split(' ')[1];
+    const supabase = createClient();
+    
+    // Verify the user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid or expired token' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     
     let validatedData;
@@ -50,14 +70,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Use a mock user ID for testing
-    const mockUserId = 'test-user-123';
+    // Get user profile for author name
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name, full_name')
+      .eq('id', user.id)
+      .single();
+    
+    const authorName = profile?.display_name || profile?.full_name || 'Anonymous User';
     
     const review = await createReview({
       ...validatedData,
-      author_id: mockUserId,
-      author_name: validatedData.author_name || 'Anonymous User'
-    }, mockUserId);
+      author_id: user.id,
+      author_name: authorName
+    }, user.id);
     
     return NextResponse.json({
       success: true,
