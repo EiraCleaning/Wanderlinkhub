@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   description: "Discover family-friendly events and hubs around the world. Find activities, workshops, and safe spaces for families with children.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo.png?v=2",
+    shortcut: "/favicon.ico?v=2",
+    apple: "/apple-touch-icon.png?v=2",
   },
   appleWebApp: {
     capable: true,
@@ -59,9 +59,9 @@ export default function RootLayout({
         />
         
         {/* Favicon */}
-        <link rel="icon" href="/logo.png" type="image/png" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/logo.png?v=2" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
         
         {/* Force Font Application */}
         <style dangerouslySetInnerHTML={{
