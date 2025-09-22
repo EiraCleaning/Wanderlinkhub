@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
       );
     }
     
+    console.log('Fetching reviews for listing:', listingId);
     const reviews = await getReviewsForListing(listingId);
+    console.log('Found reviews:', reviews.length);
     
     return NextResponse.json({
       success: true,

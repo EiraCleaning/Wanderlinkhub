@@ -215,6 +215,8 @@ export async function createReview(review: {
 export async function getReviewsForListing(listingId: string): Promise<any[]> {
   const supabase = createAdminClient();
   
+  console.log('getReviewsForListing: Querying reviews for listing:', listingId);
+  
   const { data, error } = await supabase
     .from('reviews')
     .select(`
@@ -232,5 +234,6 @@ export async function getReviewsForListing(listingId: string): Promise<any[]> {
     return [];
   }
 
+  console.log('getReviewsForListing: Found', data?.length || 0, 'reviews');
   return data || [];
 }
