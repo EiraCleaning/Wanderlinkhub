@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -25,7 +24,23 @@ export function ListingCard({
       {/* Media column */}
       <div className="relative aspect-[16/10] md:aspect-auto md:h-full md:min-h-[172px] bg-[var(--wl-beige)]">
         {imageUrl ? (
-          <Image src={imageUrl} alt="" fill sizes="(max-width: 768px) 100vw, 224px" className="object-cover" />
+          <img 
+            src={imageUrl} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              console.log('Image failed to load:', imageUrl);
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const parent = target.parentElement;
+              if (parent) {
+                parent.innerHTML = '<div class="absolute inset-0 grid place-items-center text-[var(--wl-slate)]/70 text-sm">Image failed to load</div>';
+              }
+            }}
+            onLoad={() => {
+              console.log('Image loaded successfully:', imageUrl);
+            }}
+          />
         ) : (
           <div className="absolute inset-0 grid place-items-center text-[var(--wl-slate)]/70 text-sm">No photo</div>
         )}
