@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ReviewSchema } from '@/lib/validation';
-import { createReview, getReviewsForListing } from '@/lib/db';
+import { createReview, updateReview, getReviewsForListing } from '@/lib/db';
 import { createClient } from '@/lib/supabaseClient';
 
 export async function GET(request: NextRequest) {
@@ -81,16 +81,34 @@ export async function POST(request: NextRequest) {
     
     const authorName = profile?.display_name || profile?.full_name || 'Anonymous User';
     
-    const review = await createReview({
-      ...validatedData,
-      author_id: user.id,
-      author_name: authorName
-    }, user.id);
+    // Check if user already has a review for this listing
+    const existingReviews = await getReviewsForListing(validatedData.listing_id);
+    const existingReview = existingReviews.find(r => r.author_id === user.id);
+    
+    let review;
+    let message;
+    
+    if (existingReview) {
+      // Update existing review
+      review = await updateReview({
+        ...validatedData,
+        author_id: user.id
+      }, user.id);
+      message = 'Review updated successfully';
+    } else {
+      // Create new review
+      review = await createReview({
+        ...validatedData,
+        author_id: user.id,
+        author_name: authorName
+      }, user.id);
+      message = 'Review submitted successfully';
+    }
     
     return NextResponse.json({
       success: true,
       review,
-      message: 'Review submitted successfully'
+      message
     }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating review:', error);

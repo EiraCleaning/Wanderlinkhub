@@ -96,12 +96,36 @@ export default function ReviewList({ reviews, className = '' }: ReviewListProps)
           <div key={review.id} className="p-6">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-500" />
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+                  {review.profiles?.profile_picture ? (
+                    <img 
+                      src={review.profiles.profile_picture} 
+                      alt={review.profiles.display_name || review.profiles.full_name || 'User'}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to user icon if image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = '<svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>';
+                        }
+                      }}
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-gray-500" />
+                  )}
                 </div>
                 <div>
-                  <div className="font-medium text-gray-900">
-                    Anonymous User
+                  <div className="flex items-center space-x-2">
+                    <div className="font-medium text-gray-900">
+                      {review.profiles?.display_name || review.profiles?.full_name || 'Anonymous User'}
+                    </div>
+                    {review.profiles?.is_supporter && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[var(--wl-forest)] text-white">
+                        🌟 Founding Supporter
+                      </span>
+                    )}
                   </div>
                   <div className="text-sm text-gray-500">
                     {format(new Date(review.created_at), 'MMM dd, yyyy')}

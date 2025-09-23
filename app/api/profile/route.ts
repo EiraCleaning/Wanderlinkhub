@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
     // Get profile
     const { data, error } = await supabase
       .from('profiles')
-      .select('display_name, bio, interests, profile_picture_url, is_supporter')
+      .select('display_name, bio, interests, profile_picture_url, is_supporter, subscription_status, subscription_canceled_at, subscription_current_period_end')
       .eq('id', user.id)
       .single();
 
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
           stripe_customer_id: null,
           created_at: new Date().toISOString()
         })
-        .select('display_name, bio, interests, profile_picture_url, is_supporter')
+        .select('display_name, bio, interests, profile_picture_url, is_supporter, subscription_status, subscription_canceled_at, subscription_current_period_end')
         .single();
 
       if (createError) {

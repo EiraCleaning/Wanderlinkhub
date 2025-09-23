@@ -130,14 +130,37 @@ export async function POST(request: NextRequest) {
         if (profile) {
           const isActive = subscription.status === 'active';
           const isCanceled = subscription.cancel_at_period_end;
+          const periodEnd = new Date(subscription.current_period_end * 1000).toISOString();
           
-          // Update supporter status based on subscription status
+          let subscriptionStatus = 'inactive';
+          let isSupporter = false;
+          
+          if (isActive && !isCanceled) {
+            // Active subscription
+            subscriptionStatus = 'active';
+            isSupporter = true;
+          } else if (isActive && isCanceled) {
+            // Cancelled but still active until period end
+            subscriptionStatus = 'canceled';
+            isSupporter = true; // Still has access until period end
+          } else {
+            // Inactive
+            subscriptionStatus = 'inactive';
+            isSupporter = false;
+          }
+          
+          // Update supporter status and subscription details
           await supabase
             .from('profiles')
-            .update({ is_supporter: isActive && !isCanceled })
+            .update({ 
+              is_supporter: isSupporter,
+              subscription_status: subscriptionStatus,
+              subscription_canceled_at: isCanceled ? new Date().toISOString() : null,
+              subscription_current_period_end: periodEnd
+            })
             .eq('id', profile.id);
 
-          console.log(`Subscription updated for user ${profile.id}, active: ${isActive}, canceled: ${isCanceled}`);
+          console.log(`Subscription updated for user ${profile.id}, status: ${subscriptionStatus}, supporter: ${isSupporter}, canceled: ${isCanceled}`);
         }
         break;
       }

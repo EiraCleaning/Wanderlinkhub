@@ -51,7 +51,17 @@ export default function ListingDetailPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Reviews API response:', data);
+        console.log('First review data structure:', data.reviews?.[0]);
         setReviews(data.reviews || []);
+        
+        // Check if current user has already reviewed this listing
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const userReview = data.reviews?.find((review: any) => review.author_id === user.id);
+          if (userReview) {
+            setUserReview(userReview);
+          }
+        }
       } else {
         console.error('Failed to fetch reviews:', response.status, response.statusText);
       }
@@ -89,7 +99,7 @@ export default function ListingDetailPage() {
         console.log('Review submission result:', result);
         setUserReview(result.review);
         await fetchReviews(); // Refresh reviews
-        alert('Review submitted successfully!');
+        alert(userReview ? 'Review updated successfully!' : 'Review submitted successfully!');
       } else {
         const error = await response.json();
         console.error('Review submission error:', error);

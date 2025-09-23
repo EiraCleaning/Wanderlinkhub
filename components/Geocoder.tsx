@@ -204,7 +204,7 @@ export default function Geocoder({
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          placeholder="Search for a country, city, or location... (v2)"
+          placeholder="Search for a country, city, or location..."
           className="w-full pl-10 pr-10 py-2 border border-[var(--wl-border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--wl-sky)] focus:border-[var(--wl-sky)]"
         />
         

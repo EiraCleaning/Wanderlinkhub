@@ -401,24 +401,54 @@ function ProfileContent() {
                 return profileData?.is_supporter;
               })() ? (
                 <div className="text-center">
-                  <div className="inline-flex items-center px-4 py-2 bg-[#E06C65] text-white rounded-full text-sm font-medium mb-4">
-                    🌍 Thank you for being a Founding Supporter!
-                  </div>
-                  <p className="text-gray-600 mb-4">
-                    Your support helps us build amazing features for the worldschooling community.
-                  </p>
-                  
-                  <button
-                    onClick={handleCancelSubscription}
-                    disabled={isCanceling}
-                    className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCanceling ? 'Canceling...' : 'Cancel Subscription'}
-                  </button>
-                  
-                  <p className="text-xs text-gray-500 mt-2">
-                    You'll keep supporter access until the end of your billing period
-                  </p>
+                  {profileData?.subscription_status === 'canceled' ? (
+                    // Cancelled but still active
+                    <>
+                      <div className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium mb-4">
+                        ⚠️ Subscription Cancelled
+                      </div>
+                      <p className="text-gray-600 mb-4">
+                        Your subscription has been cancelled, but you still have supporter access until{' '}
+                        <strong>
+                          {profileData?.subscription_current_period_end 
+                            ? new Date(profileData.subscription_current_period_end).toLocaleDateString()
+                            : 'the end of your billing period'
+                          }
+                        </strong>.
+                      </p>
+                      <p className="text-sm text-gray-500 mb-4">
+                        You can resubscribe anytime to continue supporting the community.
+                      </p>
+                      <button
+                        onClick={handleBecomeSupporter}
+                        className="inline-flex items-center px-4 py-2 bg-[#2E5D50] text-white rounded-lg hover:bg-[#5BA4CF] transition-colors font-medium"
+                      >
+                        Resubscribe - $6.57/month
+                      </button>
+                    </>
+                  ) : (
+                    // Active subscription
+                    <>
+                      <div className="inline-flex items-center px-4 py-2 bg-[#E06C65] text-white rounded-full text-sm font-medium mb-4">
+                        🌍 Thank you for being a Founding Supporter!
+                      </div>
+                      <p className="text-gray-600 mb-4">
+                        Your support helps us build amazing features for the worldschooling community.
+                      </p>
+                      
+                      <button
+                        onClick={handleCancelSubscription}
+                        disabled={isCanceling}
+                        className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isCanceling ? 'Canceling...' : 'Cancel Subscription'}
+                      </button>
+                      
+                      <p className="text-xs text-gray-500 mt-2">
+                        You'll keep supporter access until the end of your billing period
+                      </p>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="text-center">

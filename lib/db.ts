@@ -206,7 +206,37 @@ export async function createReview(review: {
     .single();
 
   if (error) {
+    // Check for duplicate key constraint (user already reviewed this listing)
+    if (error.message.includes('duplicate key value violates unique constraint "reviews_listing_id_author_id_key"')) {
+      throw new Error('You have already reviewed this event. Each user can only leave one review per event.');
+    }
     throw new Error(`Failed to create review: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateReview(review: {
+  listing_id: string;
+  author_id: string;
+  rating: number;
+  comment?: string;
+}, userId: string): Promise<any> {
+  const supabase = createAdminClient();
+  
+  const { data, error } = await supabase
+    .from('reviews')
+    .update({
+      rating: review.rating,
+      comment: review.comment || null
+    })
+    .eq('listing_id', review.listing_id)
+    .eq('author_id', review.author_id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update review: ${error.message}`);
   }
 
   return data;
@@ -234,19 +264,27 @@ export async function getReviewsForListing(listingId: string): Promise<any[]> {
   // If we have reviews, get the profile data separately
   if (data && data.length > 0) {
     const authorIds = data.map(review => review.author_id);
-    const { data: profiles } = await supabase
+    console.log('getReviewsForListing: Author IDs:', authorIds);
+    
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
-      .select('id, display_name, full_name')
+      .select('id, display_name, full_name, profile_picture_url, is_supporter')
       .in('id', authorIds);
+    
+    console.log('getReviewsForListing: Profile query result:', profiles);
+    console.log('getReviewsForListing: Profile query error:', profileError);
     
     // Merge the data
     const reviewsWithProfiles = data.map(review => {
       const profile = profiles?.find(p => p.id === review.author_id);
+      console.log('getReviewsForListing: Review author_id:', review.author_id, 'Found profile:', profile);
       return {
         ...review,
         profiles: profile ? {
           display_name: profile.display_name,
-          full_name: profile.full_name
+          full_name: profile.full_name,
+          profile_picture: profile.profile_picture_url,
+          is_supporter: profile.is_supporter
         } : null
       };
     });
