@@ -159,20 +159,24 @@ export default function ExplorePage() {
   };
 
   // Helper function to map ListingResponse to ListingCard props
-  const mapListingToCardProps = (listing: ListingResponse & { distance?: number }) => ({
-    id: listing.id,
-    type: listing.ltype,
-    title: listing.title,
-    city: listing.city || undefined,
-    country: listing.country || undefined,
-    startDate: listing.start_date || undefined,
-    endDate: listing.end_date || undefined,
-    price: listing.price ? formatPrice(listing.price) : undefined,
-    status: listing.verify === 'rejected' ? 'pending' : listing.verify,
-    imageUrl: listing.photos && listing.photos.length > 0 ? listing.photos[0] : undefined,
-    href: `/listing/${listing.id}`,
-    distance: listing.distance,
-  });
+  const mapListingToCardProps = (listing: ListingResponse & { distance?: number }) => {
+    const imageUrl = listing.photos && listing.photos.length > 0 ? listing.photos[0] : undefined;
+    console.log('Mapping listing:', { id: listing.id, title: listing.title, photos: listing.photos, imageUrl });
+    return {
+      id: listing.id,
+      type: listing.ltype,
+      title: listing.title,
+      city: listing.city || undefined,
+      country: listing.country || undefined,
+      startDate: listing.start_date || undefined,
+      endDate: listing.end_date || undefined,
+      price: listing.price ? formatPrice(listing.price) : undefined,
+      status: listing.verify === 'rejected' ? 'pending' : listing.verify,
+      imageUrl,
+      href: `/listing/${listing.id}`,
+      distance: listing.distance,
+    };
+  };
 
   return (
     <AppShell>

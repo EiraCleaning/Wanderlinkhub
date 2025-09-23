@@ -10,6 +10,8 @@ export function ListingCard({
   startDate?: string; endDate?: string; price?: string;
   status: "verified" | "pending"; imageUrl?: string; href: string; distance?: number;
 }) {
+  // Debug logging
+  console.log('ListingCard props:', { id, title, imageUrl, type });
   const dateText = type === "event" && startDate
     ? new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" })
         .formatRange?.(new Date(startDate), new Date(endDate ?? startDate)) ?? ""
