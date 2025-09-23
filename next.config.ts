@@ -9,8 +9,6 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true, // Disable Next.js image optimization entirely
-    loader: 'custom',
-    loaderFile: './lib/imageLoader.js',
     remotePatterns: [
       {
         protocol: 'https',
