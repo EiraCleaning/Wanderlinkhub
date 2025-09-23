@@ -135,7 +135,7 @@ export default function BottomNav() {
       }}
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-around h-16 px-4">
+      <div className="flex items-center justify-between h-16 px-2">
         {getNavItems().map((item, index) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -146,13 +146,13 @@ export default function BottomNav() {
               <button
                 key={`${item.label}-${index}`}
                 onClick={item.onClick}
-                className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors ${
+                className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors px-1 ${
                   'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
                 }`}
                 aria-label={item.ariaLabel}
               >
                 <Icon 
-                  size={24} 
+                  size={20} 
                   className={`mb-1 ${
                     'text-[var(--wl-slate)]'
                   }`}
@@ -169,7 +169,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors ${
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors px-1 ${
                 isActive 
                   ? 'text-[var(--wl-forest)]' 
                   : 'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
@@ -178,7 +178,7 @@ export default function BottomNav() {
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon 
-                size={24} 
+                size={20} 
                 className={`mb-1 ${
                   isActive ? 'text-[var(--wl-forest)]' : 'text-[var(--wl-slate)]'
                 }`}
