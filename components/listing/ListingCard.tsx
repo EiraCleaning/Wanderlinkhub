@@ -12,6 +12,7 @@ export function ListingCard({
 }) {
   // Debug logging
   console.log('ListingCard props:', { id, title, imageUrl, type });
+  console.log('Using regular img tag, not Next.js Image');
   const dateText = type === "event" && startDate
     ? new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" })
         .formatRange?.(new Date(startDate), new Date(endDate ?? startDate)) ?? ""
