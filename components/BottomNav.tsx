@@ -104,14 +104,8 @@ export default function BottomNav() {
           label: 'Profile',
           icon: User,
           ariaLabel: 'User profile and settings'
-        },
-        {
-          href: '#',
-          label: 'Logout',
-          icon: LogOut,
-          ariaLabel: 'Sign out',
-          onClick: (e: React.MouseEvent) => handleLogout(e)
         }
+        // Removed logout from main nav - will add to profile page instead
       ];
     }
 
@@ -135,41 +129,16 @@ export default function BottomNav() {
       }}
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-between h-16 px-2">
+      <div className="flex items-center justify-around h-16 px-4">
         {getNavItems().map((item, index) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
-          
-          // Handle logout button differently
-          if ('onClick' in item && item.onClick) {
-            return (
-              <button
-                key={`${item.label}-${index}`}
-                onClick={item.onClick}
-                className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors px-1 ${
-                  'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
-                }`}
-                aria-label={item.ariaLabel}
-              >
-                <Icon 
-                  size={20} 
-                  className={`mb-1 ${
-                    'text-[var(--wl-slate)]'
-                  }`}
-                  aria-hidden="true"
-                />
-                <span className="text-xs font-medium truncate">
-                  {item.label}
-                </span>
-              </button>
-            );
-          }
           
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors px-1 ${
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 h-full transition-colors ${
                 isActive 
                   ? 'text-[var(--wl-forest)]' 
                   : 'text-[var(--wl-slate)] hover:text-[var(--wl-forest)]'
@@ -178,7 +147,7 @@ export default function BottomNav() {
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon 
-                size={20} 
+                size={24} 
                 className={`mb-1 ${
                   isActive ? 'text-[var(--wl-forest)]' : 'text-[var(--wl-slate)]'
                 }`}
