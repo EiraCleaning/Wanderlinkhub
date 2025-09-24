@@ -74,7 +74,9 @@ export default function Geocoder({
   }, [initialCity, initialRegion, initialCountry]);
 
   const searchLocations = async (searchQuery: string) => {
+    console.log('🔍 searchLocations called with:', searchQuery);
     if (!searchQuery.trim() || searchQuery.length < 3) {
+      console.log('🔍 Query too short, clearing results');
       setResults([]);
       return;
     }
@@ -216,10 +218,12 @@ export default function Geocoder({
   };
 
   const handleInputFocus = () => {
+    console.log('🔍 Input focused, query length:', query.length);
     if (query.length >= 3) {
       setShowResults(true);
     } else if (query.length === 0) {
       // Show popular destinations when input is empty
+      console.log('🔍 Showing popular destinations');
       const popularResults: GeocodingResult[] = popularDestinations.slice(0, 8).map(dest => ({
         place_name: dest.city ? `${dest.city}, ${dest.country}` : dest.country,
         center: [dest.lng, dest.lat],
@@ -231,6 +235,7 @@ export default function Geocoder({
           { id: `country.${dest.country}`, text: dest.country }
         ]
       }));
+      console.log('🔍 Popular results:', popularResults);
       setResults(popularResults);
       setShowResults(true);
     }
