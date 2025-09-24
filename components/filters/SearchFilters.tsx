@@ -70,15 +70,30 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
     onApply?.(filters);
     
     // Scroll to listings section after applying filters (especially important on mobile)
-    setTimeout(() => {
+    // Use multiple attempts to ensure scroll happens after page updates
+    const scrollToResults = () => {
       const listingsSection = document.getElementById('listings-section');
       if (listingsSection) {
-        listingsSection.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        const elementTop = listingsSection.offsetTop;
+        window.scrollTo({
+          top: elementTop - 20, // 20px offset from top
+          behavior: 'smooth'
         });
+        return true;
       }
-    }, 100); // Small delay to ensure filters are processed
+      return false;
+    };
+
+    // Try immediately
+    if (!scrollToResults()) {
+      // Try after a short delay
+      setTimeout(() => {
+        if (!scrollToResults()) {
+          // Try after a longer delay as fallback
+          setTimeout(scrollToResults, 1000);
+        }
+      }, 300);
+    }
   };
 
   const handleClear = () => {
@@ -96,15 +111,29 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
     });
     
     // Scroll to listings section after clearing filters
-    setTimeout(() => {
+    const scrollToResults = () => {
       const listingsSection = document.getElementById('listings-section');
       if (listingsSection) {
-        listingsSection.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        const elementTop = listingsSection.offsetTop;
+        window.scrollTo({
+          top: elementTop - 20, // 20px offset from top
+          behavior: 'smooth'
         });
+        return true;
       }
-    }, 100);
+      return false;
+    };
+
+    // Try immediately
+    if (!scrollToResults()) {
+      // Try after a short delay
+      setTimeout(() => {
+        if (!scrollToResults()) {
+          // Try after a longer delay as fallback
+          setTimeout(scrollToResults, 1000);
+        }
+      }, 300);
+    }
   };
 
 
