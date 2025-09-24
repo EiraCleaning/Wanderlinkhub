@@ -70,30 +70,45 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
     onApply?.(filters);
     
     // Scroll to listings section after applying filters (especially important on mobile)
-    // Use multiple attempts to ensure scroll happens after page updates
+    // Use a more persistent approach that waits for page to stabilize
+    let scrollAttempts = 0;
+    const maxAttempts = 10;
+    
     const scrollToResults = () => {
+      scrollAttempts++;
       const listingsSection = document.getElementById('listings-section');
       if (listingsSection) {
         const elementTop = listingsSection.offsetTop;
-        window.scrollTo({
-          top: elementTop - 20, // 20px offset from top
-          behavior: 'smooth'
-        });
+        const currentScroll = window.pageYOffset;
+        const targetScroll = elementTop - 20;
+        
+        // Only scroll if we're not already close to the target
+        if (Math.abs(currentScroll - targetScroll) > 50) {
+          window.scrollTo({
+            top: targetScroll,
+            behavior: 'smooth'
+          });
+        }
+        
+        // Check if we need to try again after a short delay
+        if (scrollAttempts < maxAttempts) {
+          setTimeout(() => {
+            const newScroll = window.pageYOffset;
+            if (Math.abs(newScroll - targetScroll) > 50) {
+              scrollToResults();
+            }
+          }, 200);
+        }
         return true;
+      } else if (scrollAttempts < maxAttempts) {
+        // Element not found yet, try again
+        setTimeout(scrollToResults, 200);
       }
       return false;
     };
 
-    // Try immediately
-    if (!scrollToResults()) {
-      // Try after a short delay
-      setTimeout(() => {
-        if (!scrollToResults()) {
-          // Try after a longer delay as fallback
-          setTimeout(scrollToResults, 1000);
-        }
-      }, 300);
-    }
+    // Start the scroll process
+    setTimeout(scrollToResults, 100);
   };
 
   const handleClear = () => {
@@ -111,29 +126,44 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
     });
     
     // Scroll to listings section after clearing filters
+    let scrollAttempts = 0;
+    const maxAttempts = 10;
+    
     const scrollToResults = () => {
+      scrollAttempts++;
       const listingsSection = document.getElementById('listings-section');
       if (listingsSection) {
         const elementTop = listingsSection.offsetTop;
-        window.scrollTo({
-          top: elementTop - 20, // 20px offset from top
-          behavior: 'smooth'
-        });
+        const currentScroll = window.pageYOffset;
+        const targetScroll = elementTop - 20;
+        
+        // Only scroll if we're not already close to the target
+        if (Math.abs(currentScroll - targetScroll) > 50) {
+          window.scrollTo({
+            top: targetScroll,
+            behavior: 'smooth'
+          });
+        }
+        
+        // Check if we need to try again after a short delay
+        if (scrollAttempts < maxAttempts) {
+          setTimeout(() => {
+            const newScroll = window.pageYOffset;
+            if (Math.abs(newScroll - targetScroll) > 50) {
+              scrollToResults();
+            }
+          }, 200);
+        }
         return true;
+      } else if (scrollAttempts < maxAttempts) {
+        // Element not found yet, try again
+        setTimeout(scrollToResults, 200);
       }
       return false;
     };
 
-    // Try immediately
-    if (!scrollToResults()) {
-      // Try after a short delay
-      setTimeout(() => {
-        if (!scrollToResults()) {
-          // Try after a longer delay as fallback
-          setTimeout(scrollToResults, 1000);
-        }
-      }, 300);
-    }
+    // Start the scroll process
+    setTimeout(scrollToResults, 100);
   };
 
 
