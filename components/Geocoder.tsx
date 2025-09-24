@@ -26,6 +26,25 @@ interface GeocodingResult {
   }>;
 }
 
+// Popular destinations for quick selection
+const popularDestinations = [
+  { city: 'Bali', region: 'Bali', country: 'Indonesia', lat: -8.5069, lng: 115.2625 },
+  { city: 'Tokyo', region: 'Tokyo', country: 'Japan', lat: 35.6762, lng: 139.6503 },
+  { city: 'Barcelona', region: 'Catalonia', country: 'Spain', lat: 41.3851, lng: 2.1734 },
+  { city: 'Lisbon', region: 'Lisboa', country: 'Portugal', lat: 38.7223, lng: -9.1393 },
+  { city: 'Mexico City', region: 'CDMX', country: 'Mexico', lat: 19.4326, lng: -99.1332 },
+  { city: 'Bangkok', region: 'Bangkok', country: 'Thailand', lat: 13.7563, lng: 100.5018 },
+  { city: 'Sydney', region: 'New South Wales', country: 'Australia', lat: -33.8688, lng: 151.2093 },
+  { city: 'Costa Rica', region: '', country: 'Costa Rica', lat: 9.7489, lng: -83.7534 },
+  { city: 'Portugal', region: '', country: 'Portugal', lat: 39.3999, lng: -8.2245 },
+  { city: 'Spain', region: '', country: 'Spain', lat: 40.4637, lng: -3.7492 },
+  { city: 'Thailand', region: '', country: 'Thailand', lat: 15.8700, lng: 100.9925 },
+  { city: 'Japan', region: '', country: 'Japan', lat: 36.2048, lng: 138.2529 },
+  { city: 'Indonesia', region: '', country: 'Indonesia', lat: -0.7893, lng: 113.9213 },
+  { city: 'Australia', region: '', country: 'Australia', lat: -25.2744, lng: 133.7751 },
+  { city: 'Mexico', region: '', country: 'Mexico', lat: 23.6345, lng: -102.5528 }
+];
+
 export default function Geocoder({ 
   onLocationSelect, 
   initialCity = '', 
@@ -68,6 +87,13 @@ export default function Geocoder({
 
     setIsSearching(true);
     try {
+      // First, check if query matches any popular destinations
+      const matchingPopular = popularDestinations.filter(dest => 
+        dest.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dest.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dest.region.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
       // Search for countries and major cities only
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxToken}&types=country,place&limit=20&language=en&autocomplete=true`
@@ -106,8 +132,23 @@ export default function Geocoder({
           // Combine results, prioritizing countries at the top
           validResults = [...countryResults, ...validResults].slice(0, 12);
         }
-        
-        setResults(validResults);
+
+        // Convert popular destinations to GeocodingResult format and add them at the top
+        const popularResults: GeocodingResult[] = matchingPopular.map(dest => ({
+          place_name: dest.city ? `${dest.city}, ${dest.country}` : dest.country,
+          center: [dest.lng, dest.lat],
+          context: dest.city ? [
+            { id: `place.${dest.city}`, text: dest.city },
+            { id: `region.${dest.region}`, text: dest.region },
+            { id: `country.${dest.country}`, text: dest.country }
+          ].filter(ctx => ctx.text) : [
+            { id: `country.${dest.country}`, text: dest.country }
+          ]
+        }));
+
+        // Combine popular destinations with API results, prioritizing popular ones
+        const combinedResults = [...popularResults, ...validResults].slice(0, 15);
+        setResults(combinedResults);
       }
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -177,6 +218,21 @@ export default function Geocoder({
   const handleInputFocus = () => {
     if (query.length >= 3) {
       setShowResults(true);
+    } else if (query.length === 0) {
+      // Show popular destinations when input is empty
+      const popularResults: GeocodingResult[] = popularDestinations.slice(0, 8).map(dest => ({
+        place_name: dest.city ? `${dest.city}, ${dest.country}` : dest.country,
+        center: [dest.lng, dest.lat],
+        context: dest.city ? [
+          { id: `place.${dest.city}`, text: dest.city },
+          { id: `region.${dest.region}`, text: dest.region },
+          { id: `country.${dest.country}`, text: dest.country }
+        ].filter(ctx => ctx.text) : [
+          { id: `country.${dest.country}`, text: dest.country }
+        ]
+      }));
+      setResults(popularResults);
+      setShowResults(true);
     }
   };
 
@@ -230,6 +286,11 @@ export default function Geocoder({
             </div>
           ) : (
             <div className="py-1">
+              {query.length === 0 && results.length > 0 && (
+                <div className="px-4 py-2 text-xs font-medium text-[var(--wl-slate)] bg-[var(--wl-beige)] border-b border-[var(--wl-border)]">
+                  Popular Destinations
+                </div>
+              )}
               {results.filter(result => result && result.place_name).map((result, index) => {
                 const isCountry = result.place_type && result.place_type.includes('country');
                 const isCity = result.place_type && result.place_type.includes('place') && !isCountry;
