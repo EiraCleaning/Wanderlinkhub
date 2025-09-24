@@ -286,9 +286,9 @@ function ProfileContent() {
           <div className="space-y-6">
             {/* Profile Info */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
                     {profileData?.profile_picture_url ? (
                       <Image
                         src={profileData.profile_picture_url}
@@ -303,25 +303,25 @@ function ProfileContent() {
                       </div>
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-semibold text-[var(--wl-ink)]">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <h2 className="text-xl font-semibold text-[var(--wl-ink)] truncate">
                         {profileData?.display_name || profile?.full_name || 'User'}
                       </h2>
                       {profileData?.is_supporter && (
-                        <span className="px-3 py-1 bg-[#E06C65] text-white rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-[#E06C65] text-white rounded-full text-sm font-medium whitespace-nowrap">
                           🌍 Founding Supporter
                         </span>
                       )}
                     </div>
-                    <p className="text-[var(--wl-slate)]">{user.email}</p>
+                    <p className="text-[var(--wl-slate)] truncate">{user.email}</p>
                   </div>
                 </div>
                 <a
                   href="/profile/settings"
-                  className="flex items-center space-x-2 px-4 py-2 bg-[var(--wl-forest)] text-white rounded-lg hover:bg-[var(--wl-forest)]/90 transition-colors"
+                  className="flex items-center justify-center space-x-2 px-3 py-2 bg-[var(--wl-forest)] text-white rounded-lg hover:bg-[var(--wl-forest)]/90 transition-colors text-sm whitespace-nowrap w-full sm:w-auto"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="w-4 h-4 flex-shrink-0" />
                   <span>Settings</span>
                 </a>
               </div>

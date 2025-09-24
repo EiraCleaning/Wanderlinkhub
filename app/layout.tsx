@@ -47,6 +47,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Force rebuild - v3.0
   return (
     <html lang="en">
       <head>
