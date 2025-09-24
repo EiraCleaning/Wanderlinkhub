@@ -187,7 +187,7 @@ export default function ExplorePage() {
       <StickyFilters visible={stuck} onFiltersApply={handleFiltersApply} />
       
       {/* Map Section */}
-      <section className="min-h-[70vh] p-4">
+      <section id="listings-section" className="min-h-[70vh] p-4">
              <div className="max-w-5xl mx-auto">
                <div className="bg-white border border-[var(--wl-border)] rounded-2xl shadow-card p-4">
                  <h2 className="text-xl font-semibold text-[var(--wl-ink)] mb-4 brand-heading">

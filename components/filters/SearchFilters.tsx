@@ -68,6 +68,17 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
     };
     console.log('🔧 Calling onApply with filters:', filters);
     onApply?.(filters);
+    
+    // Scroll to listings section after applying filters (especially important on mobile)
+    setTimeout(() => {
+      const listingsSection = document.getElementById('listings-section');
+      if (listingsSection) {
+        listingsSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 100); // Small delay to ensure filters are processed
   };
 
   const handleClear = () => {
@@ -83,6 +94,17 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
       toDate: '',
       verifiedOnly: false
     });
+    
+    // Scroll to listings section after clearing filters
+    setTimeout(() => {
+      const listingsSection = document.getElementById('listings-section');
+      if (listingsSection) {
+        listingsSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 100);
   };
 
 
