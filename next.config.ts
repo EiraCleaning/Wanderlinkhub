@@ -103,6 +103,10 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: false,
   },
+  // Force rebuild
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
   webpack: (config, { dev, isServer }) => {
     // Ensure proper polyfills for Safari
     if (!isServer) {

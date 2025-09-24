@@ -129,7 +129,7 @@ export default function BottomNav() {
       }}
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-around h-16 px-4 bg-red-500">
+      <div className="flex items-center justify-around h-16 px-4">
         {getNavItems().map((item, index) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;

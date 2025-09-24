@@ -29,7 +29,7 @@ export function ListingCard({
       <div className="relative aspect-[16/10] md:aspect-auto md:h-full md:min-h-[172px] bg-[var(--wl-beige)]">
         {imageUrl ? (
           <img 
-            src={imageUrl} 
+            src={`${imageUrl}?v=${Date.now()}`} 
             alt="" 
             className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => {
