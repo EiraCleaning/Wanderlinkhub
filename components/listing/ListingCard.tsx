@@ -58,7 +58,14 @@ export function ListingCard({
 
       {/* Content column */}
       <div className="p-4 md:p-5 flex flex-col gap-2">
-        <h3 className="text-lg md:text-xl font-semibold text-[var(--wl-ink)] line-clamp-2">{title}</h3>
+        <h3 className="text-lg md:text-xl font-semibold text-[var(--wl-ink)] line-clamp-2">
+          <Link 
+            href={href} 
+            className="hover:text-[var(--wl-forest)] transition-colors cursor-pointer"
+          >
+            {title}
+          </Link>
+        </h3>
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center rounded-full bg-[var(--wl-sky)]/15 text-[var(--wl-ink)] px-2 py-0.5 text-xs">{type}</span>

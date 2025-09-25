@@ -15,7 +15,7 @@ interface HeroExploreProps {
       lat: number;
       lng: number;
     };
-  }) => void;
+  }, opts?: { scrollAfter?: boolean }) => void;
 }
 
 export default function HeroExplore({ children, onFiltersApply }: HeroExploreProps) {
@@ -44,7 +44,10 @@ export default function HeroExplore({ children, onFiltersApply }: HeroExplorePro
         </p>
         <div className="mt-5 sm:mt-6">
           <div className="sm:bg-white sm:border sm:border-[var(--wl-border)] sm:rounded-2xl sm:shadow-card sm:p-5 bg-white/95 sm:bg-white rounded-t-2xl p-4">
-            <SearchFilters variant="hero" onApply={onFiltersApply} />
+            <SearchFilters 
+              variant="hero" 
+              onApply={(filters, opts) => onFiltersApply?.(filters, { ...opts, scrollAfter: true })} 
+            />
           </div>
         </div>
       </div>

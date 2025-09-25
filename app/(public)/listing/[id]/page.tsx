@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import AppShell from '@/components/AppShell';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
+import ImageGallery from '@/components/ImageGallery';
 import { formatPrice, getListingTypeIcon } from '@/lib/map';
 import type { ListingResponse, ReviewResponse } from '@/lib/validation';
 import { supabase } from '@/lib/supabaseClient';
@@ -22,6 +23,8 @@ export default function ListingDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [userReview, setUserReview] = useState<ReviewResponse | null>(null);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   useEffect(() => {
     if (listingId) {
@@ -111,6 +114,11 @@ export default function ListingDetailPage() {
     } finally {
       setIsSubmittingReview(false);
     }
+  };
+
+  const openGallery = (index: number) => {
+    setGalleryIndex(index);
+    setGalleryOpen(true);
   };
 
   const formatDate = (dateString: string | null) => {
@@ -333,7 +341,7 @@ export default function ListingDetailPage() {
                     src={photo} 
                     alt={`${listing.title} - Photo ${index + 1}`}
                     className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                    onClick={() => window.open(photo, '_blank')}
+                    onClick={() => openGallery(index)}
                     onError={(e) => {
                       // Hide broken image and show placeholder
                       const target = e.target as HTMLImageElement;
@@ -442,6 +450,16 @@ export default function ListingDetailPage() {
           />
         </div>
       </div>
+
+      {/* Image Gallery Modal */}
+      {listing.photos && listing.photos.length > 0 && (
+        <ImageGallery
+          images={listing.photos}
+          isOpen={galleryOpen}
+          onClose={() => setGalleryOpen(false)}
+          initialIndex={galleryIndex}
+        />
+      )}
     </AppShell>
   );
 } 

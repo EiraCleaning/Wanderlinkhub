@@ -15,7 +15,7 @@ interface StickyFiltersProps {
       lat: number;
       lng: number;
     };
-  }) => void;
+  }, opts?: { scrollAfter?: boolean }) => void;
 }
 
 export default function StickyFilters({ visible, onFiltersApply }: StickyFiltersProps) {
@@ -39,7 +39,10 @@ export default function StickyFilters({ visible, onFiltersApply }: StickyFilters
           aria-label="Sticky filters"
         >
           <div className="max-w-5xl mx-auto px-3 py-2">
-            <SearchFilters variant="sticky" onApply={onFiltersApply} />
+            <SearchFilters 
+              variant="sticky" 
+              onApply={(filters, opts) => onFiltersApply?.(filters, { ...opts, scrollAfter: true })} 
+            />
           </div>
         </motion.div>
       )}

@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "../styles/theme.css";
 
+/* Smooth scrolling and offset for fixed headers */
+html { 
+  scroll-behavior: smooth; 
+}
+
+#listings-section { 
+  scroll-margin-top: 72px; /* header height offset */
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

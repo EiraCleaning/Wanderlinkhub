@@ -6,10 +6,10 @@ export const dynamic = 'force-dynamic';
 import AppShell from '@/components/AppShell';
 import HeroExplore from '@/components/HeroExplore';
 import StickyFilters from '@/components/StickyFilters';
-import MapView from '@/components/MapView';
 import MapPinPopup from '@/components/MapPinPopup';
 import { useStickyOnScroll } from '@/components/hooks/useStickyOnScroll';
 import { ListingCard, ListingCardSkeleton } from '@/components/listing';
+import ListingsSection from '@/components/explore/ListingsSection';
 import type { ListingResponse } from '@/lib/validation';
 import { formatPrice } from '@/lib/map';
 
@@ -27,7 +27,7 @@ export default function ExplorePage() {
   const [listings, setListings] = useState<ListingResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<ListingResponse | null>(null);
-  const [shouldScrollToMap, setShouldScrollToMap] = useState(false);
+  const [shouldScrollAfterApply, setShouldScrollAfterApply] = useState(false);
   const requestIdRef = useRef(0);
   const [filters, setFilters] = useState<FilterState>({
     location: '',
@@ -45,22 +45,6 @@ export default function ExplorePage() {
   useEffect(() => {
     fetchListings();
   }, [filters]); // Refetch when filters change
-
-  // Handle scroll to map after data loads
-  useEffect(() => {
-    if (shouldScrollToMap && !isLoading && typeof window !== 'undefined' && window.innerWidth < 768) {
-      setTimeout(() => {
-        const mapSection = document.querySelector('section:first-of-type');
-        if (mapSection) {
-          mapSection.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-        setShouldScrollToMap(false); // Reset the flag
-      }, 300); // Small delay to ensure map is rendered
-    }
-  }, [isLoading, shouldScrollToMap]);
 
   // Bullet-proof query builder
   const buildQuery = (filters: FilterState) => {
@@ -109,7 +93,6 @@ export default function ExplorePage() {
       const params = buildQuery(filters);
       const url = `/api/listings?${new URLSearchParams(params).toString()}`;
       
-      
       const response = await fetch(url, { 
         method: 'GET',
         cache: 'no-store'
@@ -136,11 +119,12 @@ export default function ExplorePage() {
     }
   };
 
-  const handleFiltersApply = (newFilters: FilterState) => {
+  const handleFiltersApply = (newFilters: FilterState, opts?: { scrollAfter?: boolean }) => {
     setFilters(newFilters);
-    // Set flag to scroll to map after data loads
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setShouldScrollToMap(true);
+    if (opts?.scrollAfter) {
+      setShouldScrollAfterApply(true);
+      // Reset the flag after a delay to allow for repeated scrolls
+      setTimeout(() => setShouldScrollAfterApply(false), 1500);
     }
   };
 
@@ -161,7 +145,6 @@ export default function ExplorePage() {
   // Helper function to map ListingResponse to ListingCard props
   const mapListingToCardProps = (listing: ListingResponse & { distance?: number }) => {
     const imageUrl = listing.photos && listing.photos.length > 0 ? listing.photos[0] : undefined;
-    console.log('Mapping listing:', { id: listing.id, title: listing.title, photos: listing.photos, imageUrl });
     return {
       id: listing.id,
       type: listing.ltype,
@@ -186,76 +169,22 @@ export default function ExplorePage() {
       
       <StickyFilters visible={stuck} onFiltersApply={handleFiltersApply} />
       
-      {/* Map Section */}
-      <section id="listings-section" className="min-h-[70vh] p-4">
-             <div className="max-w-5xl mx-auto">
-               <div className="bg-white border border-[var(--wl-border)] rounded-2xl shadow-card p-4">
-                 <h2 className="text-xl font-semibold text-[var(--wl-ink)] mb-4 brand-heading">
-                   Explore Listings
-                 </h2>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <ListingCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : listings.length === 0 ? (
-              <div className="text-center py-12 text-[var(--wl-slate)]">
-                <p className="text-lg">No listings found</p>
-                <p className="text-sm">Try adjusting your filters or check back later</p>
-              </div>
-            ) : (
-              <MapView 
-                listings={listings} 
-                onPinClick={handlePinClick}
-                className="h-96 md:h-[600px]"
-                center={filters.coordinates}
-              />
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Listings Section */}
-      <section className="p-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white border border-[var(--wl-border)] rounded-2xl shadow-card p-4">
-            <h2 className="text-xl font-semibold text-[var(--wl-ink)] mb-4 brand-heading">
-              All Listings ({listings.length})
-            </h2>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <ListingCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : listings.length === 0 ? (
-              <div className="text-center py-12 text-[var(--wl-slate)]">
-                <p className="text-lg">No listings found</p>
-                <p className="text-sm">Try adjusting your filters or check back later</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                {listings.map((listing) => (
-                  <ListingCard 
-                    key={listing.id} 
-                    {...mapListingToCardProps(listing)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      <ListingsSection
+        isLoading={isLoading}
+        items={listings}
+        shouldScrollAfterApply={shouldScrollAfterApply}
+        onPinClick={handlePinClick}
+        center={filters.coordinates || undefined}
+      />
 
       {/* Map Pin Popup */}
       {selectedListing && (
         <MapPinPopup
           listing={selectedListing}
-          onClose={handleClosePopup}
           onViewDetails={handleViewDetails}
+          onClose={handleClosePopup}
         />
       )}
     </AppShell>
   );
-} 
+}

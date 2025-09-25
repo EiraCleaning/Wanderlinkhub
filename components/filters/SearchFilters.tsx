@@ -17,10 +17,11 @@ interface SearchFiltersProps {
       lat: number;
       lng: number;
     } | undefined;
-  }) => void;
+  }, opts?: { scrollAfter?: boolean }) => void;
+  onClear?: (opts?: { scrollAfter?: boolean }) => void;
 }
 
-export default function SearchFilters({ variant = 'hero', onApply }: SearchFiltersProps) {
+export default function SearchFilters({ variant = 'hero', onApply, onClear }: SearchFiltersProps) {
   const [location, setLocation] = useState('');
   const [type, setType] = useState<ListingType | 'all'>('all');
   const [fromDate, setFromDate] = useState('');
@@ -67,48 +68,7 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
       } : undefined
     };
     console.log('🔧 Calling onApply with filters:', filters);
-    onApply?.(filters);
-    
-    // Scroll to listings section after applying filters (especially important on mobile)
-    // Use a more persistent approach that waits for page to stabilize
-    let scrollAttempts = 0;
-    const maxAttempts = 10;
-    
-    const scrollToResults = () => {
-      scrollAttempts++;
-      const listingsSection = document.getElementById('listings-section');
-      if (listingsSection) {
-        const elementTop = listingsSection.offsetTop;
-        const currentScroll = window.pageYOffset;
-        const targetScroll = elementTop - 20;
-        
-        // Only scroll if we're not already close to the target
-        if (Math.abs(currentScroll - targetScroll) > 50) {
-          window.scrollTo({
-            top: targetScroll,
-            behavior: 'smooth'
-          });
-        }
-        
-        // Check if we need to try again after a short delay
-        if (scrollAttempts < maxAttempts) {
-          setTimeout(() => {
-            const newScroll = window.pageYOffset;
-            if (Math.abs(newScroll - targetScroll) > 50) {
-              scrollToResults();
-            }
-          }, 200);
-        }
-        return true;
-      } else if (scrollAttempts < maxAttempts) {
-        // Element not found yet, try again
-        setTimeout(scrollToResults, 200);
-      }
-      return false;
-    };
-
-    // Start the scroll process
-    setTimeout(scrollToResults, 100);
+    onApply?.(filters, { scrollAfter: true });
   };
 
   const handleClear = () => {
@@ -123,47 +83,7 @@ export default function SearchFilters({ variant = 'hero', onApply }: SearchFilte
       fromDate: '',
       toDate: '',
       verifiedOnly: false
-    });
-    
-    // Scroll to listings section after clearing filters
-    let scrollAttempts = 0;
-    const maxAttempts = 10;
-    
-    const scrollToResults = () => {
-      scrollAttempts++;
-      const listingsSection = document.getElementById('listings-section');
-      if (listingsSection) {
-        const elementTop = listingsSection.offsetTop;
-        const currentScroll = window.pageYOffset;
-        const targetScroll = elementTop - 20;
-        
-        // Only scroll if we're not already close to the target
-        if (Math.abs(currentScroll - targetScroll) > 50) {
-          window.scrollTo({
-            top: targetScroll,
-            behavior: 'smooth'
-          });
-        }
-        
-        // Check if we need to try again after a short delay
-        if (scrollAttempts < maxAttempts) {
-          setTimeout(() => {
-            const newScroll = window.pageYOffset;
-            if (Math.abs(newScroll - targetScroll) > 50) {
-              scrollToResults();
-            }
-          }, 200);
-        }
-        return true;
-      } else if (scrollAttempts < maxAttempts) {
-        // Element not found yet, try again
-        setTimeout(scrollToResults, 200);
-      }
-      return false;
-    };
-
-    // Start the scroll process
-    setTimeout(scrollToResults, 100);
+    }, { scrollAfter: true });
   };
 
 
