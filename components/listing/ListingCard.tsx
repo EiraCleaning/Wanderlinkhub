@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import FavouriteButton from "@/components/FavouriteButton";
+import OptimizedImage from "@/components/OptimizedImage";
 
 export function ListingCard({
   id, type, title, city, country, startDate, endDate, price, status, imageUrl, href, distance,
@@ -28,22 +29,12 @@ export function ListingCard({
       {/* Media column */}
       <div className="relative aspect-[16/10] md:aspect-auto md:h-full md:min-h-[172px] bg-[var(--wl-beige)]">
         {imageUrl ? (
-          <img 
-            src={`${imageUrl}?v=${Date.now()}`} 
-            alt="" 
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              console.log('Image failed to load:', imageUrl, 'Error:', e);
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
-              if (parent) {
-                parent.innerHTML = '<div class="absolute inset-0 grid place-items-center text-[var(--wl-slate)]/70 text-sm">Image failed to load</div>';
-              }
-            }}
-            onLoad={() => {
-              console.log('Image loaded successfully:', imageUrl);
-            }}
+          <OptimizedImage
+            src={imageUrl}
+            alt={`${title} - Featured image`}
+            fill
+            sizes="(max-width: 768px) 100vw, 224px"
+            className="object-cover"
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center text-[var(--wl-slate)]/70 text-sm">No photo</div>

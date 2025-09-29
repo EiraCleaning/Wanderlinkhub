@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import OptimizedImage from './OptimizedImage';
 
 interface ImageGalleryProps {
   images: string[];
@@ -89,23 +90,13 @@ export default function ImageGallery({ images, isOpen, onClose, initialIndex = 0
 
       {/* Main image */}
       <div className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center p-4">
-        <img
+        <OptimizedImage
           src={currentImage}
           alt={`Gallery image ${currentIndex + 1}`}
+          width={1920}
+          height={1080}
+          sizes="100vw"
           className="max-w-full max-h-full object-contain"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-            const parent = target.parentElement;
-            if (parent) {
-              parent.innerHTML = `
-                <div class="text-white text-center">
-                  <div class="text-4xl mb-2">📷</div>
-                  <div class="text-lg">Image unavailable</div>
-                </div>
-              `;
-            }
-          }}
         />
       </div>
 
@@ -130,9 +121,12 @@ export default function ImageGallery({ images, isOpen, onClose, initialIndex = 0
                     : 'border-transparent hover:border-white/50'
                 }`}
               >
-                <img
+                <OptimizedImage
                   src={image}
                   alt={`Thumbnail ${index + 1}`}
+                  width={48}
+                  height={48}
+                  sizes="48px"
                   className="w-full h-full object-cover"
                 />
               </button>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import "../styles/theme.css";
+import PerformanceMonitor from "@/components/PerformanceMonitor";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -115,6 +116,7 @@ export default function RootLayout({
           fontFamily: "'Inter', system-ui, sans-serif"
         }}
       >
+        <PerformanceMonitor />
         {children}
       </body>
     </html>

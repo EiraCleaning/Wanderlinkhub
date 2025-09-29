@@ -9,6 +9,7 @@ import AppShell from '@/components/AppShell';
 import ReviewForm from '@/components/ReviewForm';
 import ReviewList from '@/components/ReviewList';
 import ImageGallery from '@/components/ImageGallery';
+import OptimizedImage from '@/components/OptimizedImage';
 import { formatPrice, getListingTypeIcon } from '@/lib/map';
 import type { ListingResponse, ReviewResponse } from '@/lib/validation';
 import { supabase } from '@/lib/supabaseClient';
@@ -337,27 +338,13 @@ export default function ListingDetailPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {listing.photos.map((photo, index) => (
                 <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                  <img 
-                    src={photo} 
+                  <OptimizedImage
+                    src={photo}
                     alt={`${listing.title} - Photo ${index + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover hover:scale-105 transition-transform cursor-pointer"
                     onClick={() => openGallery(index)}
-                    onError={(e) => {
-                      // Hide broken image and show placeholder
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = `
-                          <div class="w-full h-full flex items-center justify-center text-gray-500">
-                            <div class="text-center">
-                              <div class="text-2xl mb-1">📷</div>
-                              <div class="text-xs">Photo unavailable</div>
-                            </div>
-                          </div>
-                        `;
-                      }
-                    }}
                   />
                 </div>
               ))}
