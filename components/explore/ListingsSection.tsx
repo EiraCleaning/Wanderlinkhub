@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { scrollAfterLayout } from '@/lib/scrollAfterUpdate';
-import MapView from '@/components/MapView';
+import LazyMapView from '@/components/LazyMapView';
 import { ListingCard } from '@/components/listing/ListingCard';
 import { ListingResponse } from '@/lib/validation';
 
@@ -82,7 +82,7 @@ export default function ListingsSection({
               <p className="text-sm">Try adjusting your filters or check back later</p>
             </div>
           ) : (
-            <MapView 
+            <LazyMapView 
               listings={items} 
               onPinClick={onPinClick}
               className="h-96 md:h-[600px]"

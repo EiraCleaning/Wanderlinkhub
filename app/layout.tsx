@@ -73,6 +73,14 @@ export default function RootLayout({
           rel="stylesheet"
         />
         
+        {/* Preload critical resources */}
+        <link rel="preload" href="/logo.png" as="image" />
+        <link rel="preload" href="/hero.jpg" as="image" />
+        
+        {/* Preconnect to external domains */}
+        <link rel="preconnect" href="https://api.mapbox.com" />
+        <link rel="preconnect" href="https://wtjvfhdbrvtliyqihktw.supabase.co" />
+        
         {/* Favicon */}
         <link rel="icon" href="/logo.png?v=2" type="image/png" />
         <link rel="shortcut icon" href="/favicon.ico?v=2" />
@@ -95,8 +103,7 @@ export default function RootLayout({
           `
         }} />
         
-        {/* Temporarily disabled service worker for development debugging */}
-        {/*
+        {/* Service Worker for caching */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -108,7 +115,6 @@ export default function RootLayout({
             `,
           }}
         />
-        */}
       </head>
       <body
         className={`${poppins.variable} ${inter.variable} antialiased bg-[var(--wl-beige)] text-[var(--wl-ink)] min-h-screen`}
