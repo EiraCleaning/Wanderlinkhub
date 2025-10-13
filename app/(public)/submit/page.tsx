@@ -92,6 +92,48 @@ const capacityOptions = [
   { value: '100+', label: '100+' },
 ];
 
+// Helper function to parse price input
+function parsePrice(priceInput: string): number | undefined {
+  if (!priceInput || priceInput.trim() === '') {
+    return undefined;
+  }
+  
+  // Handle "Free" or "free"
+  if (priceInput.toLowerCase().includes('free')) {
+    return 0;
+  }
+  
+  // Remove currency symbols and extra text
+  const cleaned = priceInput
+    .replace(/[£$€¥₹]/g, '') // Remove currency symbols
+    .replace(/[^\d.,]/g, '') // Keep only digits, commas, and dots
+    .trim();
+  
+  if (!cleaned) {
+    return undefined;
+  }
+  
+  // Handle different decimal separators
+  let normalized = cleaned;
+  if (cleaned.includes(',') && cleaned.includes('.')) {
+    // Both comma and dot - assume comma is thousands separator
+    normalized = cleaned.replace(/,/g, '');
+  } else if (cleaned.includes(',')) {
+    // Only comma - could be decimal separator (European) or thousands separator
+    const parts = cleaned.split(',');
+    if (parts.length === 2 && parts[1].length <= 2) {
+      // Likely decimal separator
+      normalized = cleaned.replace(',', '.');
+    } else {
+      // Likely thousands separator
+      normalized = cleaned.replace(/,/g, '');
+    }
+  }
+  
+  const parsed = parseFloat(normalized);
+  return isNaN(parsed) ? undefined : parsed;
+}
+
 export default function SubmitPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>(1);
@@ -249,7 +291,7 @@ export default function SubmitPage() {
         country: formData.locationText.split(',').slice(-1)[0].trim(),
         lat: formData.lat,
         lng: formData.lng,
-        price: formData.price ? parseFloat(formData.price) : undefined,
+        price: formData.price ? parsePrice(formData.price) : undefined,
         website_url: formData.socials.website || undefined,
         contact_email: formData.contactEmail,
         contact_phone: formData.contactPhone || undefined,
@@ -289,9 +331,22 @@ export default function SubmitPage() {
         console.error('API error:', error);
         alert(`Error: ${error.message || 'Failed to create listing'}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submission error:', error);
-      alert('An error occurred while submitting your listing. Please try again.');
+      
+      let errorMessage = 'An error occurred while submitting your listing. Please try again.';
+      
+      if (error.message?.includes('price')) {
+        errorMessage = 'Please enter a valid price (e.g., "Free", "£10", "€15", or "20").';
+      } else if (error.message?.includes('email')) {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.message?.includes('title')) {
+        errorMessage = 'Please enter a title for your listing.';
+      } else if (error.message?.includes('description')) {
+        errorMessage = 'Please enter a description for your listing.';
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -728,8 +783,11 @@ export default function SubmitPage() {
                         id="price"
                         value={formData.price}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFormData('price', e.target.value)}
-                        placeholder="Free, £10, €15"
+                        placeholder="Free, £10, €15, $20"
                       />
+                      <p className="text-xs text-[var(--wl-slate)] mt-1">
+                        Enter "Free" for no cost, or a number with optional currency symbol
+                      </p>
                     </div>
                   </div>
                 </div>
