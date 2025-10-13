@@ -32,12 +32,16 @@ export default function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true);
 
   const handleError = () => {
+    console.log('🔍 [DEBUG] Image failed to load:', src);
+    console.log('🔍 [DEBUG] Image error details:', { src, alt, hasError, isLoading });
     setHasError(true);
     setIsLoading(false);
     onError?.();
   };
 
   const handleLoad = () => {
+    console.log('🔍 [DEBUG] Image loaded successfully:', src);
+    console.log('🔍 [DEBUG] Image load details:', { src, alt, isLoading });
     setIsLoading(false);
   };
 

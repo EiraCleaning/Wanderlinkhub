@@ -11,10 +11,14 @@ export function ListingCard({
   startDate?: string; endDate?: string; price?: string;
   status: "verified" | "pending"; imageUrl?: string; href: string; distance?: number;
 }) {
-  // Debug logging
-  console.log('ListingCard props:', { id, title, imageUrl, type });
-  console.log('Using regular img tag, not Next.js Image');
-  console.log('Component version: v2.0 - NO NEXT.JS IMAGE');
+  console.log('🔍 [DEBUG] ListingCard rendering:', { 
+    id, 
+    title, 
+    imageUrl: imageUrl ? `"${imageUrl}"` : 'undefined', 
+    type,
+    hasImage: !!imageUrl,
+    imageUrlLength: imageUrl?.length || 0
+  });
   const dateText = type === "event" && startDate
     ? new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" })
         .formatRange?.(new Date(startDate), new Date(endDate ?? startDate)) ?? ""

@@ -105,6 +105,10 @@ export default function ExplorePage() {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 [DEBUG] Fetched listings data:', data);
+        console.log('🔍 [DEBUG] Total listings:', data.listings?.length);
+        console.log('🔍 [DEBUG] First listing photos:', data.listings?.[0]?.photos);
+        console.log('🔍 [DEBUG] First listing title:', data.listings?.[0]?.title);
         setListings(data.listings || []);
       } else {
         console.error('Error fetching listings:', response.status);
